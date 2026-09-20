@@ -246,6 +246,7 @@
             <div class="key" data-key="9" onclick="typeChar('ㄞ')"><span class="zhuyin">ㄞ</span><span class="english">9</span></div>
             <div class="key" data-key="0" onclick="typeChar('ㄢ')"><span class="zhuyin">ㄢ</span><span class="english">0</span></div>
             <div class="key" data-key="-" onclick="typeChar('ㄦ')"><span class="zhuyin">ㄦ</span><span class="english">-</span></div>
+            <div class="key action-key" data-key="backspace" onclick="handleBackspace()"><span class="zhuyin">⌫</span><span class="english">Del</span></div>
         </div>
         <div class="row row-2">
             <div class="key" data-key="q" onclick="typeChar('ㄆ')"><span class="zhuyin">ㄆ</span><span class="english">Q</span></div>
@@ -401,6 +402,19 @@
         return initials + medials + finals + tones;
     }
 
+    function handleBackspace() {
+        if (currentBuffer.length > 0) {
+            currentBuffer = currentBuffer.slice(0, -1);
+        } else {
+            if (confirmedTextSpan.innerText.length > 0) {
+                // Delete last character from both outputs
+                confirmedTextSpan.innerText = confirmedTextSpan.innerText.slice(0, -1);
+                confirmedHanziSpan.innerText = confirmedHanziSpan.innerText.slice(0, -1);
+            }
+        }
+        updateDisplay();
+    }
+
     function updateDisplay() {
         pendingTextSpan.innerText = currentBuffer;
         
@@ -414,7 +428,10 @@
                 charToType = keyElement.querySelector('.zhuyin').innerText;
             }
             
-            if (validChars.includes(charToType)) {
+            // 不屏蔽逗號、句號、刪除鍵
+            if (charToType === '，' || charToType === '。' || charToType === '⌫') {
+                keyElement.classList.remove('disabled');
+            } else if (validChars.includes(charToType)) {
                 keyElement.classList.remove('disabled');
             } else {
                 keyElement.classList.add('disabled');
@@ -569,14 +586,10 @@
         
         if (keyMap[key]) {
             typeChar(keyMap[key]);
-            animateKey(key);
+            animateKey(keyMap[key] === ' ' ? ' ' : key);
         } else if (event.key === 'Backspace') {
-            if (currentBuffer.length > 0) {
-                currentBuffer = currentBuffer.slice(0, -1);
-            } else {
-                confirmedTextSpan.innerText = confirmedTextSpan.innerText.slice(0, -1);
-            }
-            updateDisplay();
+            handleBackspace();
+            animateKey('backspace');
         }
     });
 
