@@ -31,7 +31,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            container-type: inline-size;
+            container-type: size;
         }
 
         .window-titlebar {
@@ -94,12 +94,12 @@
             box-shadow: 0 0 2px rgba(0,0,0,0.1);
         }
         .zhuyin {
-            font-size: 4.5cqh;
+            font-size: min(4.5cqh, 4cqw);
             font-weight: bold;
             color: #1f2937;
         }
         .english {
-            font-size: 2cqh;
+            font-size: min(2cqh, 1.8cqw);
             color: #6b7280;
             margin-top: 0.5cqh;
         }
@@ -123,7 +123,7 @@
             background-color: #fefce8;
             border: 2px dashed #ca8a04;
             border-radius: 5px;
-            font-size: 6cqh;
+            font-size: min(6cqh, 5cqw);
             display: flex;
             align-items: center;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
@@ -137,7 +137,7 @@
             background-color: white;
             border: 1px solid #ccc;
             border-radius: 5px;
-            font-size: 6cqh;
+            font-size: min(6cqh, 5cqw);
             display: flex;
             align-items: center;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
@@ -146,7 +146,7 @@
         }
         button {
             padding: 0 3cqw;
-            font-size: 2.5cqw;
+            font-size: min(3cqh, 2.5cqw);
             background-color: #ef4444;
             color: white;
             border: none;
@@ -174,7 +174,7 @@
             align-items: center;
             cursor: pointer;
             box-shadow: 0 2px 2px rgba(0,0,0,0.1);
-            font-size: 3cqh;
+            font-size: min(3cqh, 2.5cqw);
             color: #1f2937;
         }
         .space-key:active, .space-key.active {
