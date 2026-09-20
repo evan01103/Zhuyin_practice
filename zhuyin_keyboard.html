@@ -284,7 +284,9 @@
             <div class="key" data-key="/" onclick="typeChar('ㄥ')"><span class="zhuyin">ㄥ</span><span class="english">/</span></div>
         </div>
         <div class="row row-5">
+            <div class="key" onclick="typeChar('，')"><span class="zhuyin">，</span><span class="english">,</span></div>
             <div class="space-key" data-key=" " onclick="typeChar(' ')">空白鍵 (Space) 第一聲</div>
+            <div class="key" onclick="typeChar('。')"><span class="zhuyin">。</span><span class="english">.</span></div>
         </div>
     </div>
     <div class="resize-hint">↘ 拖曳縮放</div>
@@ -492,6 +494,17 @@
     }
 
     function typeChar(char) {
+        // 處理標點符號
+        if (char === '，' || char === '。') {
+            confirmedTextSpan.innerText += char;
+            confirmedHanziSpan.innerText += char;
+            currentBuffer = "";
+            updateDisplay();
+            // 讓 Google TTS 唸出標點符號的停頓或名稱（可選）
+            speakFullSyllable(char === '，' ? '逗號' : '句號');
+            return;
+        }
+
         if (!getValidNextChars(currentBuffer).includes(char)) {
             return;
         }
@@ -544,7 +557,7 @@
         'q': 'ㄆ', 'w': 'ㄊ', 'e': 'ㄍ', 'r': 'ㄐ', 't': 'ㄔ', 'y': 'ㄗ', 'u': 'ㄧ', 'i': 'ㄛ', 'o': 'ㄟ', 'p': 'ㄣ',
         'a': 'ㄇ', 's': 'ㄋ', 'd': 'ㄎ', 'f': 'ㄑ', 'g': 'ㄕ', 'h': 'ㄘ', 'j': 'ㄨ', 'k': 'ㄜ', 'l': 'ㄠ', ';': 'ㄤ',
         'z': 'ㄈ', 'x': 'ㄌ', 'c': 'ㄏ', 'v': 'ㄒ', 'b': 'ㄖ', 'n': 'ㄙ', 'm': 'ㄩ', ',': 'ㄝ', '.': 'ㄡ', '/': 'ㄥ',
-        ' ': ' '
+        ' ': ' ', '<': '，', '>': '。'
     };
     
     document.addEventListener('keydown', function(event) {
