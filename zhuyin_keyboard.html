@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注音鍵盤 (Zhuyin Keyboard)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        
+        .window-wrapper {
+            resize: both;
+            overflow: hidden;
+            width: 80vw;
+            max-width: 1200px;
+            min-width: 400px;
+            height: 65vh;
+            min-height: 350px;
+            background-color: #e5e7eb;
+            border: 1px solid #9ca3af;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            container-type: size;
+            position: relative;
+        }
+
+        .window-header {
+            background-color: #9ca3af;
+            color: white;
+            padding: 8px;
+            border-radius: 8px 8px 0 0;
+            margin: -15px -15px 15px -15px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            flex-grow: 1;
+        }
+
+        .keyboard {
+            background-color: #d1d5db;
+            padding: 2cqw;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5cqh;
+            flex-grow: 1;
+        }
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 1cqw;
+            flex: 1 1 0;
+            min-height: 0;
+        }
+        .key {
+            background-color: #ffffff;
+            border: 1px solid #9ca3af;
+            border-radius: 0.5cqw;
+            flex: 1;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+            transition: background-color 0.1s, transform 0.1s;
+        }
+        .key:active, .key.active {
+            background-color: #e5e7eb;
+            transform: translateY(2px);
+            box-shadow: 0 0 2px rgba(0,0,0,0.1);
+        }
+        .zhuyin {
+            font-size: 4.5cqh;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .english {
+            font-size: 2cqh;
+            color: #6b7280;
+            margin-top: 0.5cqh;
+        }
+        
+        .row-2 { padding-right: 2cqw; padding-left: 2cqw; }
+        .row-3 { padding-right: 4cqw; padding-left: 4cqw; }
+        .row-4 { padding-right: 6cqw; padding-left: 6cqw; }
+        
+        #output-container {
+            display: flex;
+            gap: 2cqw;
+            margin-bottom: 2cqh;
+            height: 12cqh;
+            min-height: 40px;
+        }
+        #output {
+            flex-grow: 1;
+            padding: 0 2cqw;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 6cqh;
+            display: flex;
+            align-items: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        button {
+            padding: 0 3cqw;
+            font-size: 2.5cqw;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+        button:hover {
+            background-color: #dc2626;
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+        .space-key {
+            flex: 0 0 40%;
+            height: 100%;
+            box-sizing: border-box;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #9ca3af;
+            border-radius: 0.5cqw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+            font-size: 3cqh;
+            color: #1f2937;
+        }
+        .space-key:active, .space-key.active {
+            background-color: #e5e7eb;
+            transform: translateY(2px);
+            box-shadow: 0 0 2px rgba(0,0,0,0.1);
+        }
+        .key.disabled, .space-key.disabled {
+            background-color: #f3f4f6;
+            color: #d1d5db;
+            border-color: #e5e7eb;
+            pointer-events: none;
+            box-shadow: none;
+        }
+        .key.disabled .zhuyin {
+            color: #d1d5db;
+        }
+        .key.disabled .english {
+            color: #e5e7eb;
+        }
+        #pending-text {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+        }
+        .resize-hint {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            pointer-events: none;
+            font-size: 10px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+
+<div class="window-wrapper">
+    <div class="window-header">
+        注音鍵盤視窗
+    </div>
+    <div class="container">
+        <div id="output-container">
+            <div id="output"><span id="confirmed-text"></span><span id="pending-text"></span></div>
+            <button onclick="clearOutput()">清除</button>
+        </div>
+    
+    <div class="keyboard">
+        <div class="row row-1">
+            <div class="key" data-key="1" onclick="typeChar('ㄅ')"><span class="zhuyin">ㄅ</span><span class="english">1</span></div>
+            <div class="key" data-key="2" onclick="typeChar('ㄉ')"><span class="zhuyin">ㄉ</span><span class="english">2</span></div>
+            <div class="key" data-key="3" onclick="typeChar('ˇ')"><span class="zhuyin">ˇ</span><span class="english">3</span></div>
+            <div class="key" data-key="4" onclick="typeChar('ˋ')"><span class="zhuyin">ˋ</span><span class="english">4</span></div>
+            <div class="key" data-key="5" onclick="typeChar('ㄓ')"><span class="zhuyin">ㄓ</span><span class="english">5</span></div>
+            <div class="key" data-key="6" onclick="typeChar('ˊ')"><span class="zhuyin">ˊ</span><span class="english">6</span></div>
+            <div class="key" data-key="7" onclick="typeChar('˙')"><span class="zhuyin">˙</span><span class="english">7</span></div>
+            <div class="key" data-key="8" onclick="typeChar('ㄚ')"><span class="zhuyin">ㄚ</span><span class="english">8</span></div>
+            <div class="key" data-key="9" onclick="typeChar('ㄞ')"><span class="zhuyin">ㄞ</span><span class="english">9</span></div>
+            <div class="key" data-key="0" onclick="typeChar('ㄢ')"><span class="zhuyin">ㄢ</span><span class="english">0</span></div>
+            <div class="key" data-key="-" onclick="typeChar('ㄦ')"><span class="zhuyin">ㄦ</span><span class="english">-</span></div>
+        </div>
+        <div class="row row-2">
+            <div class="key" data-key="q" onclick="typeChar('ㄆ')"><span class="zhuyin">ㄆ</span><span class="english">Q</span></div>
+            <div class="key" data-key="w" onclick="typeChar('ㄊ')"><span class="zhuyin">ㄊ</span><span class="english">W</span></div>
+            <div class="key" data-key="e" onclick="typeChar('ㄍ')"><span class="zhuyin">ㄍ</span><span class="english">E</span></div>
+            <div class="key" data-key="r" onclick="typeChar('ㄐ')"><span class="zhuyin">ㄐ</span><span class="english">R</span></div>
+            <div class="key" data-key="t" onclick="typeChar('ㄔ')"><span class="zhuyin">ㄔ</span><span class="english">T</span></div>
+            <div class="key" data-key="y" onclick="typeChar('ㄗ')"><span class="zhuyin">ㄗ</span><span class="english">Y</span></div>
+            <div class="key" data-key="u" onclick="typeChar('ㄧ')"><span class="zhuyin">ㄧ</span><span class="english">U</span></div>
+            <div class="key" data-key="i" onclick="typeChar('ㄛ')"><span class="zhuyin">ㄛ</span><span class="english">I</span></div>
+            <div class="key" data-key="o" onclick="typeChar('ㄟ')"><span class="zhuyin">ㄟ</span><span class="english">O</span></div>
+            <div class="key" data-key="p" onclick="typeChar('ㄣ')"><span class="zhuyin">ㄣ</span><span class="english">P</span></div>
+        </div>
+        <div class="row row-3">
+            <div class="key" data-key="a" onclick="typeChar('ㄇ')"><span class="zhuyin">ㄇ</span><span class="english">A</span></div>
+            <div class="key" data-key="s" onclick="typeChar('ㄋ')"><span class="zhuyin">ㄋ</span><span class="english">S</span></div>
+            <div class="key" data-key="d" onclick="typeChar('ㄎ')"><span class="zhuyin">ㄎ</span><span class="english">D</span></div>
+            <div class="key" data-key="f" onclick="typeChar('ㄑ')"><span class="zhuyin">ㄑ</span><span class="english">F</span></div>
+            <div class="key" data-key="g" onclick="typeChar('ㄕ')"><span class="zhuyin">ㄕ</span><span class="english">G</span></div>
+            <div class="key" data-key="h" onclick="typeChar('ㄘ')"><span class="zhuyin">ㄘ</span><span class="english">H</span></div>
+            <div class="key" data-key="j" onclick="typeChar('ㄨ')"><span class="zhuyin">ㄨ</span><span class="english">J</span></div>
+            <div class="key" data-key="k" onclick="typeChar('ㄜ')"><span class="zhuyin">ㄜ</span><span class="english">K</span></div>
+            <div class="key" data-key="l" onclick="typeChar('ㄠ')"><span class="zhuyin">ㄠ</span><span class="english">L</span></div>
+            <div class="key" data-key=";" onclick="typeChar('ㄤ')"><span class="zhuyin">ㄤ</span><span class="english">;</span></div>
+        </div>
+        <div class="row row-4">
+            <div class="key" data-key="z" onclick="typeChar('ㄈ')"><span class="zhuyin">ㄈ</span><span class="english">Z</span></div>
+            <div class="key" data-key="x" onclick="typeChar('ㄌ')"><span class="zhuyin">ㄌ</span><span class="english">X</span></div>
+            <div class="key" data-key="c" onclick="typeChar('ㄏ')"><span class="zhuyin">ㄏ</span><span class="english">C</span></div>
+            <div class="key" data-key="v" onclick="typeChar('ㄒ')"><span class="zhuyin">ㄒ</span><span class="english">V</span></div>
+            <div class="key" data-key="b" onclick="typeChar('ㄖ')"><span class="zhuyin">ㄖ</span><span class="english">B</span></div>
+            <div class="key" data-key="n" onclick="typeChar('ㄙ')"><span class="zhuyin">ㄙ</span><span class="english">N</span></div>
+            <div class="key" data-key="m" onclick="typeChar('ㄩ')"><span class="zhuyin">ㄩ</span><span class="english">M</span></div>
+            <div class="key" data-key="," onclick="typeChar('ㄝ')"><span class="zhuyin">ㄝ</span><span class="english">,</span></div>
+            <div class="key" data-key="." onclick="typeChar('ㄡ')"><span class="zhuyin">ㄡ</span><span class="english">.</span></div>
+            <div class="key" data-key="/" onclick="typeChar('ㄥ')"><span class="zhuyin">ㄥ</span><span class="english">/</span></div>
+        </div>
+        <div class="row row-5">
+            <div class="space-key" data-key=" " onclick="typeChar(' ')">空白鍵 (Space) 第一聲</div>
+        </div>
+    </div>
+    <div class="resize-hint">↘ 拖曳縮放</div>
+</div>
+</div>
+
+<script>
+    const confirmedTextSpan = document.getElementById('confirmed-text');
+    const pendingTextSpan = document.getElementById('pending-text');
+    let currentBuffer = "";
+
+    const initials = "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙ";
+    const medials = "ㄧㄨㄩ";
+    const finals = "ㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ";
+    const tones = " ˊˇˋ˙";
+
+    function getValidNextChars(buffer) {
+        if (buffer.length === 0) {
+            return initials + medials + finals;
+        }
+        
+        let lastChar = buffer[buffer.length - 1];
+        let validNext = "";
+        
+        if (finals.includes(lastChar)) {
+            return tones; 
+        }
+        
+        if (medials.includes(lastChar)) {
+            validNext += tones;
+            let initial = buffer.length > 1 ? buffer[0] : "";
+            if (!initials.includes(initial)) initial = "";
+            
+            if (lastChar === 'ㄧ') {
+                if (initial && "ㄅㄆㄇ".includes(initial)) {
+                    validNext += "ㄝㄠㄢㄣㄥ";
+                } else if (initial && "ㄉㄊ".includes(initial)) {
+                    validNext += "ㄚㄝㄠㄡㄢㄥ";
+                } else {
+                    validNext += "ㄚㄛㄝㄠㄡㄢㄣㄤㄥ";
+                }
+            } else if (lastChar === 'ㄨ') {
+                if (initial && "ㄅㄆㄇㄈ".includes(initial)) {
+                    // bu, pu, mu, fu - no finals after u
+                } else if (initial && "ㄉㄊㄋㄌ".includes(initial)) {
+                    validNext += "ㄛㄞㄟㄢㄣㄥ";
+                } else {
+                    validNext += "ㄚㄛㄞㄟㄢㄣㄤㄥ";
+                }
+            } else if (lastChar === 'ㄩ') {
+                if (initial && "ㄋㄌ".includes(initial)) {
+                    validNext += "ㄝ";
+                } else {
+                    validNext += "ㄝㄢㄣㄥ";
+                }
+            }
+            return validNext;
+        }
+        
+        if (initials.includes(lastChar)) {
+            if ("ㄓㄔㄕㄖㄗㄘㄙ".includes(lastChar)) {
+                validNext += tones;
+            }
+            if ("ㄅㄆㄇ".includes(lastChar)) {
+                validNext += "ㄧㄨㄚㄛㄜㄞㄟㄠㄡㄢㄣㄤㄥ";
+            } else if (lastChar === "ㄈ") {
+                validNext += "ㄨㄚㄛㄟㄡㄢㄣㄤㄥ";
+            } else if ("ㄉㄊㄋㄌ".includes(lastChar)) {
+                validNext += "ㄧㄨㄩㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ";
+            } else if ("ㄍㄎㄏ".includes(lastChar)) {
+                validNext += "ㄨㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ";
+            } else if ("ㄐㄑㄒ".includes(lastChar)) {
+                validNext += "ㄧㄩ";
+            } else if ("ㄓㄔㄕㄖㄗㄘㄙ".includes(lastChar)) {
+                validNext += "ㄨㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ";
+            }
+            return validNext;
+        }
+        
+        return initials + medials + finals + tones;
+    }
+
+    function updateDisplay() {
+        pendingTextSpan.innerText = currentBuffer;
+        
+        const validChars = getValidNextChars(currentBuffer);
+        
+        document.querySelectorAll('.key, .space-key').forEach(keyElement => {
+            let charToType = "";
+            if (keyElement.classList.contains('space-key')) {
+                charToType = " ";
+            } else {
+                charToType = keyElement.querySelector('.zhuyin').innerText;
+            }
+            
+            if (validChars.includes(charToType)) {
+                keyElement.classList.remove('disabled');
+            } else {
+                keyElement.classList.add('disabled');
+            }
+        });
+    }
+
+    let availableVoices = [];
+    let currentAudio = null;
+    
+    // Load voices when they are ready
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = function() {
+            availableVoices = window.speechSynthesis.getVoices().filter(v => v.lang.includes('zh'));
+        };
+    }
+
+    // 發音單一注音符號 (使用瀏覽器內建 TTS，反應最快)
+    function speakChar(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-TW';
+            utterance.volume = 1.0;
+            utterance.rate = 1.0;
+            
+            if (availableVoices.length > 0) {
+                let twVoice = availableVoices.find(v => v.lang === 'zh-TW' && (v.name.includes('Hanhan') || v.name.includes('Yating') || v.name.includes('Mei-Jia') || v.name.includes('Google'))) || availableVoices[0];
+                if (twVoice) {
+                    utterance.voice = twVoice;
+                }
+            }
+            
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // 發音完整組合字 (使用 Google Translate TTS，保證能完美將注音拼成自然字音)
+    function speakFullSyllable(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // 停止單音朗讀
+        }
+        if (currentAudio) {
+            currentAudio.pause();
+        }
+        
+        // 去除空白鍵 (第一聲)，直接讓 Google 唸出注音組合
+        let query = text.replace(" ", "");
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(query)}&tl=zh-TW&client=tw-ob`;
+        currentAudio = new Audio(url);
+        currentAudio.volume = 1.0;
+        currentAudio.play().catch(e => console.error("Audio playback failed:", e));
+    }
+
+    function typeChar(char) {
+        if (!getValidNextChars(currentBuffer).includes(char)) {
+            return;
+        }
+
+        if (tones.includes(char)) {
+            let fullSyllable = currentBuffer + (char === " " ? "" : char);
+            
+            if (char === " ") {
+                confirmedTextSpan.innerText += currentBuffer;
+            } else {
+                confirmedTextSpan.innerText += fullSyllable;
+            }
+            currentBuffer = "";
+            
+            // Speak the completed syllable
+            speakFullSyllable(fullSyllable);
+        } else {
+            currentBuffer += char;
+            // Speak the individual character
+            speakChar(char);
+        }
+        updateDisplay();
+    }
+    
+    function clearOutput() {
+        confirmedTextSpan.innerText = '';
+        currentBuffer = '';
+        updateDisplay();
+    }
+    
+    // Support physical keyboard typing
+    const keyMap = {
+        '1': 'ㄅ', '2': 'ㄉ', '3': 'ˇ', '4': 'ˋ', '5': 'ㄓ', '6': 'ˊ', '7': '˙', '8': 'ㄚ', '9': 'ㄞ', '0': 'ㄢ', '-': 'ㄦ',
+        'q': 'ㄆ', 'w': 'ㄊ', 'e': 'ㄍ', 'r': 'ㄐ', 't': 'ㄔ', 'y': 'ㄗ', 'u': 'ㄧ', 'i': 'ㄛ', 'o': 'ㄟ', 'p': 'ㄣ',
+        'a': 'ㄇ', 's': 'ㄋ', 'd': 'ㄎ', 'f': 'ㄑ', 'g': 'ㄕ', 'h': 'ㄘ', 'j': 'ㄨ', 'k': 'ㄜ', 'l': 'ㄠ', ';': 'ㄤ',
+        'z': 'ㄈ', 'x': 'ㄌ', 'c': 'ㄏ', 'v': 'ㄒ', 'b': 'ㄖ', 'n': 'ㄙ', 'm': 'ㄩ', ',': 'ㄝ', '.': 'ㄡ', '/': 'ㄥ',
+        ' ': ' '
+    };
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === ' ' || event.key === 'Backspace') {
+            event.preventDefault();
+        }
+        
+        const key = event.key.toLowerCase();
+        
+        if (keyMap[key]) {
+            typeChar(keyMap[key]);
+            animateKey(key);
+        } else if (event.key === 'Backspace') {
+            if (currentBuffer.length > 0) {
+                currentBuffer = currentBuffer.slice(0, -1);
+            } else {
+                confirmedTextSpan.innerText = confirmedTextSpan.innerText.slice(0, -1);
+            }
+            updateDisplay();
+        }
+    });
+
+    function animateKey(key) {
+        const keyElement = document.querySelector(`[data-key="${key}"]`);
+        if (keyElement && !keyElement.classList.contains('disabled')) {
+            keyElement.classList.add('active');
+            setTimeout(() => {
+                keyElement.classList.remove('active');
+            }, 100);
+        }
+    }
+    
+    // Initialize keyboard state on load
+    updateDisplay();
+</script>
+</body>
+</html>
