@@ -37,6 +37,24 @@
             height: 100%;
             border: none;
         }
+        #fullscreen-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: background-color 0.3s;
+        }
+        #fullscreen-btn:hover {
+            background-color: #555;
+        }
     </style>
 </head>
 <body>
@@ -106,6 +124,21 @@
                 });
             }
         }
+        // 全螢幕切換功能
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message} (${err.name})`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
     </script>
+
+    <!-- 全螢幕按鈕 -->
+    <button id="fullscreen-btn" onclick="toggleFullScreen()">全螢幕</button>
 </body>
 </html>
