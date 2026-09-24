@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>注音鍵盤 (Zhuyin Keyboard)</title>
     <style>
         body {
@@ -649,7 +650,10 @@
         }
 
         const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(query)}&tl=zh-TW&client=tw-ob`;
-        currentAudio = new Audio(url);
+        currentAudio = document.createElement('audio');
+        currentAudio.crossOrigin = "anonymous";
+        currentAudio.referrerPolicy = "no-referrer";
+        currentAudio.src = url;
         currentAudio.volume = 1.0;
         currentAudio.play().catch(e => console.error("Audio playback failed:", e));
     }
