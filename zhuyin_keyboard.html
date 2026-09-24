@@ -627,8 +627,8 @@
                 charToType = keyElement.querySelector('.zhuyin').innerText;
             }
             
-            // 不屏蔽逗號、句號、刪除鍵
-            if (charToType === '，' || charToType === '。' || charToType === '⌫') {
+            // 不屏蔽逗號、句號、問號、刪除鍵
+            if (charToType === '，' || charToType === '。' || charToType === '？' || charToType === '⌫') {
                 keyElement.classList.remove('disabled');
             } else if (validChars.includes(charToType)) {
                 keyElement.classList.remove('disabled');
