@@ -694,8 +694,8 @@
             currentBuffer = "";
             pendingOldHanzi = "";
             
-            // Speak the completed syllable (use Hanzi for perfect TTS accuracy)
-            speakFullSyllable(outputH || fullSyllable);
+            // Speak the completed syllable
+            speakFullSyllable(fullSyllable);
             
             updateDynamicHanzi(); // 動態重新選字
         } else {
