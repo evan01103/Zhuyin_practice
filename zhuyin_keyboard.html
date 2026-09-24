@@ -637,25 +637,31 @@
         "ㄇㄜ˙": "麼"
     };
 
-    // 發音完整組合字 (使用內建 Web Speech API，無網路與跨域限制)
+    // 發音完整組合字 (恢復使用 Google Translate TTS，並加入 no-referrer 繞過防盜連)
     function speakFullSyllable(text) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel(); // 停止單音朗讀
-            
-            let query = text.replace(" ", "");
-            
-            // 處理輕聲發音：若在常用對應表內，替換為中文字以求完美輕聲
-            if (neutralToneMap[query]) {
-                query = neutralToneMap[query];
-            } else if (query.includes("˙")) {
-                query = "˙" + query.replace("˙", "");
-            }
-
-            const utterance = new SpeechSynthesisUtterance(query);
-            utterance.lang = 'zh-TW';
-            utterance.rate = 1.0;
-            window.speechSynthesis.speak(utterance);
         }
+        if (currentAudio) {
+            currentAudio.pause();
+        }
+        
+        let query = text.replace(" ", "");
+        
+        // 處理輕聲發音：若在常用對應表內，替換為中文字以求完美輕聲
+        if (neutralToneMap[query]) {
+            query = neutralToneMap[query];
+        } else if (query.includes("˙")) {
+            query = "˙" + query.replace("˙", "");
+        }
+
+        // client=tw-ob 是原本好聽的聲音，加上 no-referrer 即可繞過防盜連
+        const url = `https://translate.googleapis.com/translate_tts?client=tw-ob&ie=UTF-8&tl=zh-TW&q=${encodeURIComponent(query)}`;
+        currentAudio = new Audio();
+        currentAudio.referrerPolicy = "no-referrer";
+        currentAudio.src = url;
+        currentAudio.volume = 1.0;
+        currentAudio.play().catch(e => console.error("Audio playback failed:", e));
     }
 
     function typeChar(char) {
