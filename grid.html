@@ -117,7 +117,15 @@
 
         // API 載入完成後觸發
         function onYouTubeIframeAPIReady() {
-            // 此處保留空白即可，我們會在 renderVideo 中動態初始化每個播放器
+            var iframes = document.querySelectorAll('iframe');
+            iframes.forEach(function(iframe) {
+                var player = new YT.Player(iframe, {
+                    events: {
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+                players.push(player);
+            });
         }
 
         // 偵測播放器狀態改變 (當某一個影片開始播放時，暫停其他所有影片)
