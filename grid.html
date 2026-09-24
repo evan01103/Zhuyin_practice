@@ -41,12 +41,15 @@
 </head>
 <body>
     <div class="grid-container">
-        <!-- 1st cell with YouTube video -->
+        <!-- 1st cell -->
         <div class="grid-item">
-            <iframe src="https://www.youtube.com/embed/tlnNDNrIyBo" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="player1" src="https://www.youtube.com/embed/tlnNDNrIyBo?enablejsapi=1" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
-        <!-- Remaining 19 cells -->
-        <div class="grid-item">2</div>
+        <!-- 2nd cell -->
+        <div class="grid-item">
+            <iframe id="player2" src="https://www.youtube.com/embed/zPeMFCDPgKE?enablejsapi=1" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <!-- Remaining 18 cells -->
         <div class="grid-item">3</div>
         <div class="grid-item">4</div>
         <div class="grid-item">5</div>
@@ -66,5 +69,40 @@
         <div class="grid-item">19</div>
         <div class="grid-item">20</div>
     </div>
+
+    <script>
+        // 非同步載入 YouTube IFrame Player API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var players = [];
+
+        // 當 API 下載完成後會自動執行此函式
+        function onYouTubeIframeAPIReady() {
+            var iframes = document.querySelectorAll('iframe');
+            iframes.forEach(function(iframe) {
+                var player = new YT.Player(iframe, {
+                    events: {
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+                players.push(player);
+            });
+        }
+
+        // 偵測播放器狀態改變，當某一個影片開始播放時，暫停其他所有影片
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                var currentPlayer = event.target;
+                players.forEach(function(player) {
+                    if (player !== currentPlayer && typeof player.pauseVideo === 'function') {
+                        player.pauseVideo();
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>
