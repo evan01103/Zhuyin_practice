@@ -41,23 +41,36 @@
             width: 80%;
             padding: 5px;
             font-size: 14px;
+            text-align: center;
         }
         .edit-btn {
             padding: 5px 10px;
             cursor: pointer;
             font-size: 14px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .edit-btn:hover {
+            background-color: #45a049;
         }
         .clear-btn {
             position: absolute;
             top: 5px;
             right: 5px;
             z-index: 10;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.85);
             border: 1px solid #ccc;
             border-radius: 4px;
             cursor: pointer;
-            padding: 2px 5px;
+            padding: 4px 8px;
             font-size: 12px;
+            font-weight: bold;
+            color: #d9534f;
+        }
+        .clear-btn:hover {
+            background-color: #f2dede;
         }
         iframe {
             width: 100%;
@@ -85,45 +98,16 @@
     </style>
 </head>
 <body>
-    <div class="grid-container">
-        <!-- 1st cell -->
-        <div class="grid-item">
-            <iframe id="player1" src="https://www.youtube.com/embed/tlnNDNrIyBo?enablejsapi=1" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        <!-- 2nd cell -->
-        <div class="grid-item">
-            <iframe id="player2" src="https://www.youtube.com/embed/zPeMFCDPgKE?enablejsapi=1" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        <!-- 3rd cell -->
-        <div class="grid-item">
-            <iframe id="player3" src="https://www.youtube.com/embed/aRRQ6FQJZ-o?enablejsapi=1" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        <!-- Remaining 17 cells -->
-        <!-- 4th cell -->
-        <div class="grid-item editable-cell" id="cell-4">
-            <input type="text" id="video-input-4" class="edit-input" placeholder="貼上 YouTube 網址">
-            <button class="edit-btn" onclick="saveVideoLink(4)">儲存影片</button>
-        </div>
-        <div class="grid-item">5</div>
-        <div class="grid-item">6</div>
-        <div class="grid-item">7</div>
-        <div class="grid-item">8</div>
-        <div class="grid-item">9</div>
-        <div class="grid-item">10</div>
-        <div class="grid-item">11</div>
-        <div class="grid-item">12</div>
-        <div class="grid-item">13</div>
-        <div class="grid-item">14</div>
-        <div class="grid-item">15</div>
-        <div class="grid-item">16</div>
-        <div class="grid-item">17</div>
-        <div class="grid-item">18</div>
-        <div class="grid-item">19</div>
-        <div class="grid-item">20</div>
+    <!-- 格子容器 -->
+    <div class="grid-container" id="grid-container">
+        <!-- 20個格子將由 JavaScript 動態產生 -->
     </div>
 
+    <!-- 全螢幕按鈕 -->
+    <button id="fullscreen-btn" onclick="toggleFullScreen()">全螢幕</button>
+
     <script>
-        // 非同步載入 YouTube IFrame Player API
+        // 載入 YouTube IFrame Player API
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -131,20 +115,12 @@
 
         var players = [];
 
-        // 當 API 下載完成後會自動執行此函式
+        // API 載入完成後觸發
         function onYouTubeIframeAPIReady() {
-            var iframes = document.querySelectorAll('iframe');
-            iframes.forEach(function(iframe) {
-                var player = new YT.Player(iframe, {
-                    events: {
-                        'onStateChange': onPlayerStateChange
-                    }
-                });
-                players.push(player);
-            });
+            // 此處保留空白即可，我們會在 renderVideo 中動態初始化每個播放器
         }
 
-        // 偵測播放器狀態改變，當某一個影片開始播放時，暫停其他所有影片
+        // 偵測播放器狀態改變 (當某一個影片開始播放時，暫停其他所有影片)
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
                 var currentPlayer = event.target;
@@ -155,6 +131,7 @@
                 });
             }
         }
+
         // 全螢幕切換功能
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
@@ -167,14 +144,15 @@
                 }
             }
         }
-        // 取得 YouTube 影片 ID
+
+        // 從網址萃取 YouTube 影片 ID
         function extractVideoID(url) {
             var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             var match = url.match(regExp);
             return (match && match[2].length == 11) ? match[2] : null;
         }
 
-        // 儲存影片連結
+        // 儲存並更新格子內的影片
         function saveVideoLink(cellId) {
             var input = document.getElementById('video-input-' + cellId);
             var url = input.value.trim();
@@ -187,7 +165,7 @@
             }
         }
 
-        // 渲染影片到格子中
+        // 渲染影片到指定的格子中
         function renderVideo(cellId, videoId) {
             var cell = document.getElementById('cell-' + cellId);
             cell.classList.remove('editable-cell');
@@ -195,7 +173,8 @@
                 <iframe id="player${cellId}" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 <button class="clear-btn" onclick="clearVideoLink(${cellId})">清除</button>
             `;
-            // 如果 YouTube API 已經載入，手動初始化新播放器
+            
+            // 若 YouTube API 已載入，立刻初始化該播放器
             if (typeof YT !== 'undefined' && YT.Player) {
                 var iframe = document.getElementById('player' + cellId);
                 var newPlayer = new YT.Player(iframe, {
@@ -203,32 +182,64 @@
                         'onStateChange': onPlayerStateChange
                     }
                 });
-                // 為了避免重複，若先前有儲存過這個 player 也要替換或過濾掉，但簡單點就直接 push
                 players.push(newPlayer);
             }
         }
 
-        // 清除影片
+        // 清除格子的影片記憶，變回輸入框
         function clearVideoLink(cellId) {
             localStorage.removeItem('grid_video_' + cellId);
+            
+            // 從陣列中移除被刪除的播放器，避免發生報錯
+            players = players.filter(function(p) {
+                return p.getIframe && p.getIframe().id !== ('player' + cellId);
+            });
+            
             var cell = document.getElementById('cell-' + cellId);
             cell.classList.add('editable-cell');
             cell.innerHTML = `
-                <input type="text" id="video-input-${cellId}" class="edit-input" placeholder="貼上 YouTube 網址">
+                <input type="text" id="video-input-${cellId}" class="edit-input" placeholder="貼上 YouTube 網址 (第 ${cellId} 格)">
                 <button class="edit-btn" onclick="saveVideoLink(${cellId})">儲存影片</button>
             `;
         }
 
-        // 網頁載入時檢查是否已有儲存的影片
-        document.addEventListener('DOMContentLoaded', function() {
-            var savedVideo4 = localStorage.getItem('grid_video_4');
-            if (savedVideo4) {
-                renderVideo(4, savedVideo4);
+        // 畫面載入時：初始化 20 個格子
+        function initGrid() {
+            var container = document.getElementById('grid-container');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= 20; i++) {
+                var cell = document.createElement('div');
+                cell.className = 'grid-item editable-cell';
+                cell.id = 'cell-' + i;
+                
+                // 預設為輸入框狀態
+                cell.innerHTML = `
+                    <input type="text" id="video-input-${i}" class="edit-input" placeholder="貼上 YouTube 網址 (第 ${i} 格)">
+                    <button class="edit-btn" onclick="saveVideoLink(${i})">儲存影片</button>
+                `;
+                container.appendChild(cell);
+
+                // 如果有先前儲存的影片，直接渲染出來
+                var savedVideo = localStorage.getItem('grid_video_' + i);
+                if (savedVideo) {
+                    renderVideo(i, savedVideo);
+                }
             }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 首次使用動態版本時，自動將前三格影片存入 localStorage，保留使用者的體驗
+            if (!localStorage.getItem('grid_initialized_v2')) {
+                localStorage.setItem('grid_video_1', extractVideoID("https://youtu.be/tlnNDNrIyBo"));
+                localStorage.setItem('grid_video_2', extractVideoID("https://youtu.be/zPeMFCDPgKE"));
+                localStorage.setItem('grid_video_3', extractVideoID("https://youtu.be/aRRQ6FQJZ-o"));
+                localStorage.setItem('grid_initialized_v2', 'true');
+            }
+            
+            // 執行初始化
+            initGrid();
         });
     </script>
-
-    <!-- 全螢幕按鈕 -->
-    <button id="fullscreen-btn" onclick="toggleFullScreen()">全螢幕</button>
 </body>
 </html>
