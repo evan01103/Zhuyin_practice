@@ -89,6 +89,13 @@
             box-shadow: 0 2px 2px rgba(0,0,0,0.1);
             transition: background-color 0.1s, transform 0.1s;
         }
+        .key.spacer {
+            visibility: hidden;
+            pointer-events: none;
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+        }
         .key:active, .key.active {
             background-color: #e5e7eb;
             transform: translateY(2px);
@@ -253,6 +260,8 @@
             <div class="key" data-key="i" onclick="typeChar('ㄛ')"><span class="zhuyin">ㄛ</span><span class="english">I</span></div>
             <div class="key" data-key="o" onclick="typeChar('ㄟ')"><span class="zhuyin">ㄟ</span><span class="english">O</span></div>
             <div class="key" data-key="p" onclick="typeChar('ㄣ')"><span class="zhuyin">ㄣ</span><span class="english">P</span></div>
+            <div class="key spacer"></div>
+            <div class="key" onclick="typeChar('，')"><span class="zhuyin">，</span><span class="english">,</span></div>
         </div>
         <div class="row row-3">
             <div class="key" data-key="a" onclick="typeChar('ㄇ')"><span class="zhuyin">ㄇ</span><span class="english">A</span></div>
@@ -265,6 +274,8 @@
             <div class="key" data-key="k" onclick="typeChar('ㄜ')"><span class="zhuyin">ㄜ</span><span class="english">K</span></div>
             <div class="key" data-key="l" onclick="typeChar('ㄠ')"><span class="zhuyin">ㄠ</span><span class="english">L</span></div>
             <div class="key" data-key=";" onclick="typeChar('ㄤ')"><span class="zhuyin">ㄤ</span><span class="english">;</span></div>
+            <div class="key spacer"></div>
+            <div class="key" onclick="typeChar('。')"><span class="zhuyin">。</span><span class="english">.</span></div>
         </div>
         <div class="row row-4">
             <div class="key" data-key="z" onclick="typeChar('ㄈ')"><span class="zhuyin">ㄈ</span><span class="english">Z</span></div>
@@ -277,11 +288,11 @@
             <div class="key" data-key="," onclick="typeChar('ㄝ')"><span class="zhuyin">ㄝ</span><span class="english">,</span></div>
             <div class="key" data-key="." onclick="typeChar('ㄡ')"><span class="zhuyin">ㄡ</span><span class="english">.</span></div>
             <div class="key" data-key="/" onclick="typeChar('ㄥ')"><span class="zhuyin">ㄥ</span><span class="english">/</span></div>
+            <div class="key spacer"></div>
+            <div class="key" onclick="typeChar('？')"><span class="zhuyin">？</span><span class="english">?</span></div>
         </div>
         <div class="row row-5">
-            <div class="key" onclick="typeChar('，')"><span class="zhuyin">，</span><span class="english">,</span></div>
             <div class="space-key" data-key=" " onclick="typeChar(' ')">空白鍵 (Space) 第一聲</div>
-            <div class="key" onclick="typeChar('。')"><span class="zhuyin">。</span><span class="english">.</span></div>
         </div>
     </div>
     <div class="resize-hint">↘ 拖曳縮放</div>
@@ -652,13 +663,13 @@
 
     function typeChar(char) {
         // 處理標點符號
-        if (char === '，' || char === '。') {
+        if (char === '，' || char === '。' || char === '？') {
             confirmedOutputs.push({ zhuyin: char, hanzi: char });
             currentBuffer = "";
             pendingOldHanzi = "";
             updateDisplay();
-            // 讓 Google TTS 唸出標點符號的停頓或名稱（可選）
-            speakFullSyllable(char === '，' ? '逗號' : '句號');
+            let punctName = char === '，' ? '逗號' : (char === '。' ? '句號' : '問號');
+            speakFullSyllable(punctName);
             return;
         }
 
