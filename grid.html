@@ -31,6 +31,33 @@
             overflow: hidden;
             font-size: 24px;
             color: #666;
+            position: relative;
+        }
+        .editable-cell {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .edit-input {
+            width: 80%;
+            padding: 5px;
+            font-size: 14px;
+        }
+        .edit-btn {
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .clear-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 2px 5px;
+            font-size: 12px;
         }
         iframe {
             width: 100%;
@@ -72,7 +99,11 @@
             <iframe id="player3" src="https://www.youtube.com/embed/aRRQ6FQJZ-o?enablejsapi=1" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
         <!-- Remaining 17 cells -->
-        <div class="grid-item">4</div>
+        <!-- 4th cell -->
+        <div class="grid-item editable-cell" id="cell-4">
+            <input type="text" id="video-input-4" class="edit-input" placeholder="貼上 YouTube 網址">
+            <button class="edit-btn" onclick="saveVideoLink(4)">儲存影片</button>
+        </div>
         <div class="grid-item">5</div>
         <div class="grid-item">6</div>
         <div class="grid-item">7</div>
@@ -136,6 +167,65 @@
                 }
             }
         }
+        // 取得 YouTube 影片 ID
+        function extractVideoID(url) {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+            return (match && match[2].length == 11) ? match[2] : null;
+        }
+
+        // 儲存影片連結
+        function saveVideoLink(cellId) {
+            var input = document.getElementById('video-input-' + cellId);
+            var url = input.value.trim();
+            var videoId = extractVideoID(url);
+            if (videoId) {
+                localStorage.setItem('grid_video_' + cellId, videoId);
+                renderVideo(cellId, videoId);
+            } else {
+                alert('請輸入有效的 YouTube 網址！');
+            }
+        }
+
+        // 渲染影片到格子中
+        function renderVideo(cellId, videoId) {
+            var cell = document.getElementById('cell-' + cellId);
+            cell.classList.remove('editable-cell');
+            cell.innerHTML = `
+                <iframe id="player${cellId}" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <button class="clear-btn" onclick="clearVideoLink(${cellId})">清除</button>
+            `;
+            // 如果 YouTube API 已經載入，手動初始化新播放器
+            if (typeof YT !== 'undefined' && YT.Player) {
+                var iframe = document.getElementById('player' + cellId);
+                var newPlayer = new YT.Player(iframe, {
+                    events: {
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+                // 為了避免重複，若先前有儲存過這個 player 也要替換或過濾掉，但簡單點就直接 push
+                players.push(newPlayer);
+            }
+        }
+
+        // 清除影片
+        function clearVideoLink(cellId) {
+            localStorage.removeItem('grid_video_' + cellId);
+            var cell = document.getElementById('cell-' + cellId);
+            cell.classList.add('editable-cell');
+            cell.innerHTML = `
+                <input type="text" id="video-input-${cellId}" class="edit-input" placeholder="貼上 YouTube 網址">
+                <button class="edit-btn" onclick="saveVideoLink(${cellId})">儲存影片</button>
+            `;
+        }
+
+        // 網頁載入時檢查是否已有儲存的影片
+        document.addEventListener('DOMContentLoaded', function() {
+            var savedVideo4 = localStorage.getItem('grid_video_4');
+            if (savedVideo4) {
+                renderVideo(4, savedVideo4);
+            }
+        });
     </script>
 
     <!-- 全螢幕按鈕 -->
