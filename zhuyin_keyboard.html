@@ -20,10 +20,10 @@
         .window-wrapper {
             resize: both;
             overflow: hidden;
-            width: 80vw;
+            width: 95vw;
             max-width: 100vw;
             min-width: 400px;
-            height: 65vh;
+            height: 85vh;
             min-height: 350px;
             background-color: #e5e7eb;
             border: 1px solid #9ca3af;
@@ -33,6 +33,19 @@
             flex-direction: column;
             position: relative;
             container-type: size;
+            transition: width 0.3s, height 0.3s;
+        }
+        .window-wrapper.fullscreen {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none;
+            border-radius: 0;
+            border: none;
+            resize: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
         }
 
         .window-titlebar {
@@ -190,6 +203,31 @@
             transform: translateY(2px);
             box-shadow: 0 0 2px rgba(0,0,0,0.1);
         }
+        .fullscreen-btn {
+            flex: 0 0 auto;
+            padding: 0 2cqw;
+            height: 100%;
+            box-sizing: border-box;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 0.5cqw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+            font-size: min(3cqh, 2cqw);
+            font-weight: bold;
+            transition: background-color 0.1s, transform 0.1s;
+        }
+        .fullscreen-btn:hover {
+            background-color: #2563eb;
+        }
+        .fullscreen-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 2px rgba(0,0,0,0.1);
+        }
         .key.disabled, .space-key.disabled {
             background-color: #f3f4f6;
             color: #d1d5db;
@@ -290,6 +328,7 @@
         </div>
         <div class="row row-5">
             <div class="space-key" data-key=" " onclick="typeChar(' ')">空白鍵 (Space) 第一聲</div>
+            <div class="fullscreen-btn" onclick="toggleFullScreen()">⛶ 全螢幕</div>
         </div>
     </div>
     <div class="resize-hint">↘ 拖曳縮放</div>
@@ -760,6 +799,42 @@
         }
     }
     
+    function toggleFullScreen() {
+        const doc = window.document;
+        const docEl = doc.documentElement;
+        
+        const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+        if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+            requestFullScreen.call(docEl).catch(err => {
+                console.log(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            cancelFullScreen.call(doc);
+        }
+    }
+
+    // 監聽全螢幕狀態改變 (包含按 ESC 退出)
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullScreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullScreenChange);
+
+    function handleFullScreenChange() {
+        const btn = document.querySelector('.fullscreen-btn');
+        const wrapper = document.querySelector('.window-wrapper');
+        const isFullScreen = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+        
+        if (isFullScreen) {
+            wrapper.classList.add('fullscreen');
+            btn.innerHTML = '⛶ 縮小';
+        } else {
+            wrapper.classList.remove('fullscreen');
+            btn.innerHTML = '⛶ 全螢幕';
+        }
+    }
+
     // Initialize keyboard state on load
     updateDisplay();
 </script>
