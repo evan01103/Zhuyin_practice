@@ -650,8 +650,7 @@
         }
 
         const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(query)}&tl=zh-TW&client=tw-ob`;
-        currentAudio = document.createElement('audio');
-        currentAudio.crossOrigin = "anonymous";
+        currentAudio = new Audio();
         currentAudio.referrerPolicy = "no-referrer";
         currentAudio.src = url;
         currentAudio.volume = 1.0;
