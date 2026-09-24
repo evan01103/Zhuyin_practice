@@ -629,32 +629,25 @@
         "ㄇㄜ˙": "麼"
     };
 
-    // 發音完整組合字 (使用 Google Translate TTS，保證能完美將注音拼成自然字音)
+    // 發音完整組合字 (使用內建 Web Speech API，無網路與跨域限制)
     function speakFullSyllable(text) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel(); // 停止單音朗讀
-        }
-        if (currentAudio) {
-            currentAudio.pause();
-        }
-        
-        // 去除空白鍵 (第一聲)，直接讓 Google 唸出注音組合
-        let query = text.replace(" ", "");
-        
-        // 處理輕聲發音：若在常用對應表內，替換為中文字以求完美輕聲
-        if (neutralToneMap[query]) {
-            query = neutralToneMap[query];
-        } else if (query.includes("˙")) {
-            // 若不在表內，則依標準注音規範將輕聲點移至字首，幫助 TTS 引擎正確判讀
-            query = "˙" + query.replace("˙", "");
-        }
+            
+            let query = text.replace(" ", "");
+            
+            // 處理輕聲發音：若在常用對應表內，替換為中文字以求完美輕聲
+            if (neutralToneMap[query]) {
+                query = neutralToneMap[query];
+            } else if (query.includes("˙")) {
+                query = "˙" + query.replace("˙", "");
+            }
 
-        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(query)}&tl=zh-TW&client=tw-ob`;
-        currentAudio = new Audio();
-        currentAudio.referrerPolicy = "no-referrer";
-        currentAudio.src = url;
-        currentAudio.volume = 1.0;
-        currentAudio.play().catch(e => console.error("Audio playback failed:", e));
+            const utterance = new SpeechSynthesisUtterance(query);
+            utterance.lang = 'zh-TW';
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
     }
 
     function typeChar(char) {
@@ -697,8 +690,8 @@
             currentBuffer = "";
             pendingOldHanzi = "";
             
-            // Speak the completed syllable
-            speakFullSyllable(fullSyllable);
+            // Speak the completed syllable (use Hanzi for perfect TTS accuracy)
+            speakFullSyllable(outputH || fullSyllable);
             
             updateDynamicHanzi(); // 動態重新選字
         } else {
