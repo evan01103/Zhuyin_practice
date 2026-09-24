@@ -182,6 +182,12 @@
         button:active {
             transform: translateY(1px);
         }
+        .speak-btn {
+            background-color: #10b981;
+        }
+        .speak-btn:hover {
+            background-color: #059669;
+        }
         .space-key {
             flex: 0 0 40%;
             height: 100%;
@@ -265,6 +271,7 @@
         <div id="output-container">
             <div class="display-row">
                 <div id="hanzi-output"><span id="confirmed-hanzi"></span><span id="pending-hanzi"></span></div>
+                <button class="speak-btn" onclick="speakEntireSentence()">朗讀</button>
             </div>
             <div class="display-row">
                 <div id="output"><span id="confirmed-text"></span><span id="pending-text"></span><span class="cursor"></span></div>
@@ -833,6 +840,22 @@
             wrapper.classList.remove('fullscreen');
             btn.innerHTML = '⛶ 全螢幕';
         }
+    }
+
+    function speakEntireSentence() {
+        const fullText = (confirmedOutputs.map(o => o.hanzi).join('') + pendingOldHanzi).trim();
+        if (!fullText) return;
+        
+        if (currentAudio) {
+            currentAudio.pause();
+        }
+        
+        const url = `https://translate.googleapis.com/translate_tts?client=tw-ob&ie=UTF-8&tl=zh-TW&q=${encodeURIComponent(fullText)}`;
+        currentAudio = new Audio();
+        currentAudio.referrerPolicy = "no-referrer";
+        currentAudio.src = url;
+        currentAudio.volume = 1.0;
+        currentAudio.play().catch(e => console.error("Audio playback failed:", e));
     }
 
     // Initialize keyboard state on load
