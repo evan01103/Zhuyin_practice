@@ -9,10 +9,53 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             height: 100vh;
             background-color: #f0f0f0;
+        }
+        .tabs-container {
+            width: 95vw;
+            display: flex;
+            gap: 5px;
+            margin-top: 2vh;
+            margin-bottom: 10px;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 8px 15px;
+            background-color: #ddd;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+            font-size: 14px;
+            color: #444;
+            transition: background-color 0.2s;
+        }
+        .tab:hover {
+            background-color: #ccc;
+        }
+        .tab.active {
+            background-color: #ffffff;
+            font-weight: bold;
+            color: #000;
+            border-top: 3px solid #007bff;
+        }
+        .tab-add {
+            font-weight: bold;
+            color: #007bff;
+            padding: 8px 12px;
+        }
+        .tab-close {
+            color: #999;
+            font-size: 16px;
+            line-height: 1;
+        }
+        .tab-close:hover {
+            color: #d9534f;
         }
         .grid-container {
             display: grid;
@@ -20,7 +63,8 @@
             grid-template-rows: repeat(4, 1fr);
             gap: 10px;
             width: 95vw;
-            height: 95vh;
+            flex-grow: 1;
+            margin-bottom: 2vh;
         }
         .grid-item {
             background-color: #ffffff;
@@ -98,37 +142,43 @@
     </style>
 </head>
 <body>
+    <!-- 分頁導覽列 -->
+    <div class="tabs-container" id="tabs-container"></div>
+
     <!-- 格子容器 -->
-    <div class="grid-container" id="grid-container">
-        <!-- 20個格子將由 JavaScript 動態產生 -->
-    </div>
+    <div class="grid-container" id="grid-container"></div>
 
     <!-- 全螢幕按鈕 -->
     <button id="fullscreen-btn" onclick="toggleFullScreen()">全螢幕</button>
 
     <script>
+        let appData = {
+            pages: [],
+            currentPageId: null
+        };
+        var players = [];
+
         // 載入 YouTube IFrame Player API
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        var players = [];
-
-        // API 載入完成後觸發
         function onYouTubeIframeAPIReady() {
             var iframes = document.querySelectorAll('iframe');
             iframes.forEach(function(iframe) {
-                var player = new YT.Player(iframe, {
-                    events: {
-                        'onStateChange': onPlayerStateChange
-                    }
-                });
-                players.push(player);
+                if (!iframe.classList.contains('yt-initialized')) {
+                    var player = new YT.Player(iframe, {
+                        events: {
+                            'onStateChange': onPlayerStateChange
+                        }
+                    });
+                    players.push(player);
+                    iframe.classList.add('yt-initialized');
+                }
             });
         }
 
-        // 偵測播放器狀態改變 (當某一個影片開始播放時，暫停其他所有影片)
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
                 var currentPlayer = event.target;
@@ -140,11 +190,10 @@
             }
         }
 
-        // 全螢幕切換功能
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message} (${err.name})`);
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
                 });
             } else {
                 if (document.exitFullscreen) {
@@ -153,27 +202,187 @@
             }
         }
 
-        // 從網址萃取 YouTube 影片 ID
         function extractVideoID(url) {
             var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             var match = url.match(regExp);
             return (match && match[2].length == 11) ? match[2] : null;
         }
 
-        // 儲存並更新格子內的影片
+        // --- 核心資料存取邏輯 ---
+        function loadData() {
+            let dataStr = localStorage.getItem('grid_pages_data');
+            if (dataStr) {
+                appData = JSON.parse(dataStr);
+            } else {
+                // 資料移轉：將舊版的 localStorage grid_video_X 轉移到新架構
+                let oldDataExists = false;
+                let defaultPage = { id: 'page_' + Date.now(), name: '分頁 1', videos: {} };
+                
+                for(let i=1; i<=20; i++) {
+                    let oldVid = localStorage.getItem('grid_video_' + i);
+                    if (oldVid) {
+                        defaultPage.videos[i] = oldVid;
+                        oldDataExists = true;
+                    }
+                }
+                
+                // 如果是全新使用者，給予預設的三部影片
+                if (!oldDataExists && !localStorage.getItem('grid_initialized_v2')) {
+                    defaultPage.videos[1] = extractVideoID("https://youtu.be/tlnNDNrIyBo");
+                    defaultPage.videos[2] = extractVideoID("https://youtu.be/zPeMFCDPgKE");
+                    defaultPage.videos[3] = extractVideoID("https://youtu.be/aRRQ6FQJZ-o");
+                }
+                
+                appData.pages.push(defaultPage);
+                appData.currentPageId = defaultPage.id;
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('grid_pages_data', JSON.stringify(appData));
+        }
+
+        // --- 分頁 UI 邏輯 ---
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = '';
+            
+            appData.pages.forEach(page => {
+                let tab = document.createElement('div');
+                tab.className = 'tab' + (page.id === appData.currentPageId ? ' active' : '');
+                
+                let titleSpan = document.createElement('span');
+                titleSpan.textContent = page.name;
+                titleSpan.title = "點擊兩下來重新命名";
+                
+                // 切換與重新命名事件
+                titleSpan.onclick = () => switchPage(page.id);
+                titleSpan.ondblclick = (e) => {
+                    e.stopPropagation();
+                    renamePage(page.id);
+                };
+                
+                tab.appendChild(titleSpan);
+                
+                // 刪除按鈕 (大於 1 頁時才顯示)
+                if (appData.pages.length > 1) {
+                    let closeBtn = document.createElement('span');
+                    closeBtn.className = 'tab-close';
+                    closeBtn.textContent = '×';
+                    closeBtn.title = "刪除分頁";
+                    closeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deletePage(page.id);
+                    };
+                    tab.appendChild(closeBtn);
+                }
+                
+                container.appendChild(tab);
+            });
+            
+            let addBtn = document.createElement('div');
+            addBtn.className = 'tab tab-add';
+            addBtn.textContent = '+';
+            addBtn.title = "新增分頁";
+            addBtn.onclick = addPage;
+            container.appendChild(addBtn);
+        }
+
+        function switchPage(pageId) {
+            if (appData.currentPageId === pageId) return;
+            appData.currentPageId = pageId;
+            saveData();
+            renderTabs();
+            initGrid();
+        }
+
+        function renamePage(pageId) {
+            let page = appData.pages.find(p => p.id === pageId);
+            let newName = prompt('請輸入新的分頁名稱：', page.name);
+            if (newName && newName.trim() !== '') {
+                page.name = newName.trim();
+                saveData();
+                renderTabs();
+            }
+        }
+
+        function addPage() {
+            let newPage = {
+                id: 'page_' + Date.now(),
+                name: '新分頁',
+                videos: {}
+            };
+            appData.pages.push(newPage);
+            appData.currentPageId = newPage.id;
+            saveData();
+            renderTabs();
+            initGrid();
+        }
+
+        function deletePage(pageId) {
+            if (confirm('確定要刪除這個分頁以及裡面的所有影片嗎？')) {
+                appData.pages = appData.pages.filter(p => p.id !== pageId);
+                if (appData.currentPageId === pageId) {
+                    appData.currentPageId = appData.pages[0].id;
+                }
+                saveData();
+                renderTabs();
+                initGrid();
+            }
+        }
+
+        // --- 網格與影片邏輯 ---
+        function initGrid() {
+            // 切換分頁時，銷毀或清空原有的播放器實例，避免背景繼續發出聲音
+            players.forEach(p => { 
+                if(typeof p.destroy === 'function') p.destroy(); 
+            });
+            players = [];
+            
+            var container = document.getElementById('grid-container');
+            container.innerHTML = '';
+            
+            let currentPage = appData.pages.find(p => p.id === appData.currentPageId);
+
+            for (let i = 1; i <= 20; i++) {
+                var cell = document.createElement('div');
+                cell.className = 'grid-item editable-cell';
+                cell.id = 'cell-' + i;
+                
+                cell.innerHTML = `
+                    <input type="text" id="video-input-${i}" class="edit-input" placeholder="貼上 YouTube 網址">
+                    <button class="edit-btn" onclick="saveVideoLink(${i})">儲存影片</button>
+                `;
+                container.appendChild(cell);
+
+                if (currentPage.videos && currentPage.videos[i]) {
+                    renderVideo(i, currentPage.videos[i]);
+                }
+            }
+            
+            // 若 YouTube API 已載入，為新分頁的影片註冊播放器
+            if (typeof YT !== 'undefined' && YT.Player) {
+                setTimeout(onYouTubeIframeAPIReady, 100); 
+                // 稍微延遲讓 iframe 進入 DOM 確保能被選取到
+            }
+        }
+
         function saveVideoLink(cellId) {
             var input = document.getElementById('video-input-' + cellId);
             var url = input.value.trim();
             var videoId = extractVideoID(url);
             if (videoId) {
-                localStorage.setItem('grid_video_' + cellId, videoId);
+                let currentPage = appData.pages.find(p => p.id === appData.currentPageId);
+                if (!currentPage.videos) currentPage.videos = {};
+                currentPage.videos[cellId] = videoId;
+                saveData();
                 renderVideo(cellId, videoId);
             } else {
                 alert('請輸入有效的 YouTube 網址！');
             }
         }
 
-        // 渲染影片到指定的格子中
         function renderVideo(cellId, videoId) {
             var cell = document.getElementById('cell-' + cellId);
             cell.classList.remove('editable-cell');
@@ -182,7 +391,6 @@
                 <button class="clear-btn" onclick="clearVideoLink(${cellId})">清除</button>
             `;
             
-            // 若 YouTube API 已載入，立刻初始化該播放器
             if (typeof YT !== 'undefined' && YT.Player) {
                 var iframe = document.getElementById('player' + cellId);
                 var newPlayer = new YT.Player(iframe, {
@@ -191,14 +399,17 @@
                     }
                 });
                 players.push(newPlayer);
+                iframe.classList.add('yt-initialized');
             }
         }
 
-        // 清除格子的影片記憶，變回輸入框
         function clearVideoLink(cellId) {
-            localStorage.removeItem('grid_video_' + cellId);
+            let currentPage = appData.pages.find(p => p.id === appData.currentPageId);
+            if (currentPage.videos && currentPage.videos[cellId]) {
+                delete currentPage.videos[cellId];
+                saveData();
+            }
             
-            // 從陣列中移除被刪除的播放器，避免發生報錯
             players = players.filter(function(p) {
                 return p.getIframe && p.getIframe().id !== ('player' + cellId);
             });
@@ -206,46 +417,15 @@
             var cell = document.getElementById('cell-' + cellId);
             cell.classList.add('editable-cell');
             cell.innerHTML = `
-                <input type="text" id="video-input-${cellId}" class="edit-input" placeholder="貼上 YouTube 網址 (第 ${cellId} 格)">
+                <input type="text" id="video-input-${cellId}" class="edit-input" placeholder="貼上 YouTube 網址">
                 <button class="edit-btn" onclick="saveVideoLink(${cellId})">儲存影片</button>
             `;
         }
 
-        // 畫面載入時：初始化 20 個格子
-        function initGrid() {
-            var container = document.getElementById('grid-container');
-            container.innerHTML = '';
-
-            for (let i = 1; i <= 20; i++) {
-                var cell = document.createElement('div');
-                cell.className = 'grid-item editable-cell';
-                cell.id = 'cell-' + i;
-                
-                // 預設為輸入框狀態
-                cell.innerHTML = `
-                    <input type="text" id="video-input-${i}" class="edit-input" placeholder="貼上 YouTube 網址 (第 ${i} 格)">
-                    <button class="edit-btn" onclick="saveVideoLink(${i})">儲存影片</button>
-                `;
-                container.appendChild(cell);
-
-                // 如果有先前儲存的影片，直接渲染出來
-                var savedVideo = localStorage.getItem('grid_video_' + i);
-                if (savedVideo) {
-                    renderVideo(i, savedVideo);
-                }
-            }
-        }
-
+        // 啟動應用程式
         document.addEventListener('DOMContentLoaded', function() {
-            // 首次使用動態版本時，自動將前三格影片存入 localStorage，保留使用者的體驗
-            if (!localStorage.getItem('grid_initialized_v2')) {
-                localStorage.setItem('grid_video_1', extractVideoID("https://youtu.be/tlnNDNrIyBo"));
-                localStorage.setItem('grid_video_2', extractVideoID("https://youtu.be/zPeMFCDPgKE"));
-                localStorage.setItem('grid_video_3', extractVideoID("https://youtu.be/aRRQ6FQJZ-o"));
-                localStorage.setItem('grid_initialized_v2', 'true');
-            }
-            
-            // 執行初始化
+            loadData();
+            renderTabs();
             initGrid();
         });
     </script>
