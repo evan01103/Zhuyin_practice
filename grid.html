@@ -404,6 +404,9 @@
         }
 
         function clearVideoLink(cellId) {
+            if (!confirm('確定要清除這格的影片嗎？')) {
+                return;
+            }
             let currentPage = appData.pages.find(p => p.id === appData.currentPageId);
             if (currentPage.videos && currentPage.videos[cellId]) {
                 delete currentPage.videos[cellId];
