@@ -532,13 +532,22 @@
         
         let pinyinStr = "";
         let validSyllableCount = 0;
+        let expectedTones = [];
         
         for (let i = 0; i < confirmedOutputs.length; i++) {
             const out = confirmedOutputs[i];
-            if (out.zhuyin !== '，' && out.zhuyin !== '。') {
+            if (out.zhuyin !== '，' && out.zhuyin !== '。' && out.zhuyin !== '？') {
                 const z = out.zhuyin.replace(/[ˊˇˋ˙ ]/g, ''); // 移除聲調與第一聲空白
                 pinyinStr += zhuyinToPinyin(z) + " ";
                 validSyllableCount++;
+                
+                // 記錄使用者輸入的聲調，以過濾不符合的 Google 拼音建議
+                let tone = '1';
+                if (out.zhuyin.includes('ˊ')) tone = '2';
+                else if (out.zhuyin.includes('ˇ')) tone = '3';
+                else if (out.zhuyin.includes('ˋ')) tone = '4';
+                else if (out.zhuyin.includes('˙')) tone = '5';
+                expectedTones.push(tone);
             }
         }
         
@@ -555,18 +564,46 @@
         fetchAbortController = new AbortController();
 
         try {
-            const res = await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(pinyinStr)}&itc=zh-hant-t-i0-pinyin&num=1`, {
+            const res = await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(pinyinStr)}&itc=zh-hant-t-i0-pinyin&num=15`, {
                 signal: fetchAbortController.signal
             });
             const data = await res.json();
             
             if (data[0] === 'SUCCESS' && data[1] && data[1][0] && data[1][0][1]) {
-                const bestCandidate = data[1][0][1][0]; // 例如 "我愛你"
+                const candidates = data[1][0][1];
+                const annotations = data[1][0][3] && data[1][0][3].annotation ? data[1][0][3].annotation : [];
                 
-                if (bestCandidate.length === validSyllableCount) {
+                let bestCandidate = null;
+                
+                // 找尋第一個完全符合使用者輸入聲調的候選詞
+                for (let c = 0; c < candidates.length; c++) {
+                    const cand = candidates[c];
+                    if (cand.length === validSyllableCount) {
+                        const ann = annotations[c] || "";
+                        const annTones = ann.split(' ').map(p => {
+                            const match = p.match(/\d$/);
+                            return match ? match[0] : '1';
+                        });
+                        
+                        let toneMatch = true;
+                        for (let t = 0; t < expectedTones.length; t++) {
+                            if (annTones[t] !== expectedTones[t]) {
+                                toneMatch = false;
+                                break;
+                            }
+                        }
+                        
+                        if (toneMatch) {
+                            bestCandidate = cand;
+                            break;
+                        }
+                    }
+                }
+                
+                if (bestCandidate) {
                     let charIndex = 0;
                     for (let i = 0; i < confirmedOutputs.length; i++) {
-                        if (confirmedOutputs[i].zhuyin !== '，' && confirmedOutputs[i].zhuyin !== '。') {
+                        if (confirmedOutputs[i].zhuyin !== '，' && confirmedOutputs[i].zhuyin !== '。' && confirmedOutputs[i].zhuyin !== '？') {
                             confirmedOutputs[i].hanzi = bestCandidate[charIndex];
                             charIndex++;
                         }
