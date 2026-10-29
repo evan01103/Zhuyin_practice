@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>古詩詞逐句朗讀 — 曹操〈短歌行〉・蘇軾〈水調歌頭〉・唐詩三百首</title>
+<style>
+  :root {
+    --bg-outer: #ece4d5;
+    --bg-paper: #fbf8f1;
+    --bg-card: #ffffff;
+    --bg-active: #fff4df;
+    --bg-hover: #f6f0e4;
+    --text-main: #26221e;
+    --text-muted: #6e655c;
+    --text-note: #524a42;
+    --accent: #b83b2b;       /* 硃砂紅 */
+    --accent-dark: #8f291c;
+    --accent-soft: #f9e6e3;
+    --gold: #d4881c;
+    --border: #e2d8c5;
+    --shadow: 0 10px 32px rgb(45 35 20 / 0.10);
+    --poem-size: 1.75rem;
+    --rt-size: 0.72rem;
+  }
+
+  [data-theme="dark"] {
+    --bg-outer: #161514;
+    --bg-paper: #211f1c;
+    --bg-card: #2b2824;
+    --bg-active: #3c3122;
+    --bg-hover: #322e29;
+    --text-main: #efeae1;
+    --text-muted: #a89f93;
+    --text-note: #cfc6ba;
+    --accent: #e05a47;
+    --accent-dark: #b83b2b;
+    --accent-soft: #422622;
+    --gold: #f0a83c;
+    --border: #3d3831;
+    --shadow: 0 10px 32px rgb(0 0 0 / 0.45);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: radial-gradient(circle at top, var(--bg-paper), var(--bg-outer));
+    color: var(--text-main);
+    font-family: "Iansui", "Kaiti TC", "STKaiti", "DFKai-SB", "BiauKai", "Noto Serif TC", "PMingLiU", serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 14px 160px;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .window-wrapper {
+    width: min(960px, 100%);
+    background: var(--bg-paper);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 22px 26px 32px;
+    position: relative;
+  }
+
+  .window-wrapper.fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-radius: 0;
+    border: none;
+    overflow-y: auto;
+    padding-bottom: 165px;
+    z-index: 900;
+  }
+
+  /* 頂部導覽與工具列 */
+  .top-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    color: #fff;
+    font-family: "DFKai-SB", "BiauKai", serif;
+    font-weight: bold;
+    font-size: 1.05rem;
+    border-radius: 6px;
+    border: 2px solid #fff3;
+    box-shadow: 0 2px 6px rgb(184 59 43 / 0.35);
+    user-select: none;
+  }
+
+  .brand-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .top-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .select-box, .tool-btn {
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    font-size: 0.9rem;
+    padding: 7px 11px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .select-box {
+    font-weight: 600;
+    max-width: 240px;
+  }
+
+  .tool-btn:hover, .select-box:hover {
+    border-color: var(--accent);
+    background: var(--bg-hover);
+  }
+
+  .tool-btn.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .tool-btn.catalog-btn {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .tool-btn.catalog-btn:hover {
+    background: var(--accent-dark);
+  }
+
+  /* 依作者分類選擇列 */
+  .selector-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+  }
+
+  .selector-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .selector-label {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* 熱門詩人快速標籤列 */
+  .author-chips-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+  }
+
+  .chip-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-right: 2px;
+  }
+
+  .author-chip {
+    font-family: inherit;
+    font-size: 0.82rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .author-chip:hover {
+    border-color: var(--accent);
+    background: var(--bg-hover);
+  }
+
+  .author-chip.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .author-chip .count {
+    font-size: 0.74rem;
+    opacity: 0.82;
+    margin-left: 2px;
+  }
+
+  /* 詩詞標題區 */
+  .poem-header {
+    text-align: center;
+    margin: 10px 0 22px;
+    position: relative;
+  }
+
+  .poem-title-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .poem-title {
+    font-size: 2.25rem;
+    margin: 0;
+    letter-spacing: 5px;
+    color: var(--text-main);
+  }
+
+  .speak-title-btn {
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--accent);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s, background 0.15s;
+  }
+
+  .speak-title-btn:hover {
+    transform: scale(1.08);
+    background: var(--accent-soft);
+  }
+
+  .poem-meta {
+    margin-top: 8px;
+    font-size: 1.12rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .genre-badge {
+    font-family: "Microsoft JhengHei", system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .poem-intro {
+    max-width: 700px;
+    margin: 12px auto 0;
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    background: var(--bg-hover);
+    padding: 10px 16px;
+    border-radius: 12px;
+    border-left: 4px solid var(--accent);
+    text-align: left;
+  }
+
+  /* 朗讀進度與狀態提示橫幅 */
+  .status-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin-bottom: 18px;
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    font-size: 0.92rem;
+  }
+
+  .status-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    background: var(--bg-hover);
+    color: var(--text-muted);
+  }
+
+  .status-badge.playing {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .status-badge.shadowing {
+    background: var(--gold);
+    color: #fff;
+  }
+
+  .progress-track {
+    flex: 1;
+    min-width: 120px;
+    max-width: 240px;
+    height: 8px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    transition: width 0.3s ease;
+  }
+
+  /* 詩句列表 */
+  .sentences-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .sentence-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sentence-card:hover {
+    border-color: var(--gold);
+    background: var(--bg-hover);
+    transform: translateY(-1px);
+  }
+
+  .sentence-card.active {
+    background: var(--bg-active);
+    border-color: var(--accent);
+    box-shadow: 0 6px 20px rgb(184 59 43 / 0.14);
+  }
+
+  .sentence-card.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 12px;
+    bottom: 12px;
+    width: 5px;
+    background: var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .sentence-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .sentence-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .sentence-index {
+    font-family: "Microsoft JhengHei", system-ui, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .sentence-card.active .sentence-index {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .sentence-text {
+    font-size: var(--poem-size);
+    line-height: 2.15;
+    letter-spacing: 3px;
+    font-weight: 500;
+  }
+
+  /* 注音 Ruby 樣式 */
+  ruby {
+    ruby-align: center;
+    margin: 0 1px;
+  }
+
+  rt {
+    font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+    font-size: var(--rt-size);
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0;
+    transform: translateY(-2px);
+  }
+
+  .hide-zhuyin rt {
+    display: none;
+  }
+
+  .hide-zhuyin .sentence-text {
+    line-height: 1.65;
+  }
+
+  .sentence-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .line-play-btn {
+    border: 1px solid var(--border);
+    background: var(--bg-paper);
+    color: var(--text-main);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .line-play-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .sentence-card.active .line-play-btn {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* 音波動畫 */
+  .wave-indicator {
+    display: none;
+    align-items: flex-end;
+    gap: 3px;
+    height: 16px;
+    padding: 0 6px;
+  }
+
+  .sentence-card.playing .wave-indicator {
+    display: inline-flex;
+  }
+
+  .wave-bar {
+    width: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    animation: waveBounce 0.7s infinite ease-in-out;
+  }
+  .wave-bar:nth-child(1) { height: 6px; animation-delay: 0s; }
+  .wave-bar:nth-child(2) { height: 14px; animation-delay: 0.15s; }
+  .wave-bar:nth-child(3) { height: 9px; animation-delay: 0.3s; }
+  .wave-bar:nth-child(4) { height: 15px; animation-delay: 0.45s; }
+
+  @keyframes waveBounce {
+    0%, 100% { transform: scaleY(0.45); }
+    50% { transform: scaleY(1.1); }
+  }
+
+  /* 註釋與白話翻譯區 */
+  .sentence-details {
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    border-top: 1px dashed var(--border);
+    padding-top: 8px;
+    margin-top: 2px;
+    padding-left: 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
+
+  .hide-notes .sentence-details {
+    display: none;
+  }
+
+  .trans-line {
+    color: var(--text-note);
+  }
+
+  .trans-tag, .vocab-tag {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  .trans-tag {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .vocab-line {
+    color: var(--text-muted);
+    font-size: 0.86rem;
+  }
+
+  .vocab-tag {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  /* 底部懸浮朗讀控制列 */
+  .player-dock {
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(960px, calc(100% - 24px));
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 12px 36px rgb(0 0 0 / 0.22);
+    padding: 12px 18px;
+    z-index: 950;
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dock-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .now-playing {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+    flex: 1;
+  }
+
+  .now-playing-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .now-playing-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .transport-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ctrl-btn {
+    border: 1px solid var(--border);
+    background: var(--bg-paper);
+    color: var(--text-main);
+    border-radius: 12px;
+    padding: 8px 13px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+
+  .ctrl-btn:hover {
+    border-color: var(--accent);
+    background: var(--bg-hover);
+  }
+
+  .ctrl-btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    padding: 9px 20px;
+    font-size: 1.02rem;
+    box-shadow: 0 4px 12px rgb(184 59 43 / 0.3);
+  }
+
+  .ctrl-btn.primary:hover {
+    background: var(--accent-dark);
+  }
+
+  .dock-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .setting-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .setting-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+  }
+
+  .mini-select {
+    font-family: inherit;
+    font-size: 0.84rem;
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-paper);
+    color: var(--text-main);
+    cursor: pointer;
+  }
+
+  /* 彈出視窗共用樣式 */
+  dialog {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--bg-paper);
+    color: var(--text-main);
+    padding: 22px;
+    box-shadow: var(--shadow);
+    font-family: "Microsoft JhengHei", system-ui, sans-serif;
+  }
+
+  dialog::backdrop {
+    background: rgb(0 0 0 / 0.48);
+    backdrop-filter: blur(2px);
+  }
+
+  #customPoemDialog {
+    width: min(540px, 92vw);
+  }
+
+  /* 唐詩三百首 依作者分類總覽 Dialog */
+  #catalogDialog {
+    width: min(920px, 95vw);
+    max-height: 86vh;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .catalog-container {
+    display: flex;
+    flex-direction: column;
+    height: min(78vh, 720px);
+  }
+
+  .catalog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    flex-wrap: wrap;
+  }
+
+  .catalog-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .catalog-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    max-width: 380px;
+  }
+
+  .catalog-search {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-paper);
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.9rem;
+  }
+
+  .catalog-body {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .catalog-authors {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 10px;
+    background: var(--bg-paper);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .author-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+
+  .author-nav-item:hover {
+    background: var(--bg-hover);
+  }
+
+  .author-nav-item.active {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .author-nav-count {
+    font-size: 0.76rem;
+    padding: 2px 7px;
+    border-radius: 99px;
+    background: var(--bg-hover);
+    color: var(--text-muted);
+  }
+
+  .author-nav-item.active .author-nav-count {
+    background: rgb(255 255 255 / 0.22);
+    color: #fff;
+  }
+
+  .catalog-poems {
+    overflow-y: auto;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+    align-content: start;
+  }
+
+  .poem-grid-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.16s;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+  }
+
+  .poem-grid-card:hover {
+    border-color: var(--accent);
+    background: var(--bg-hover);
+    transform: translateY(-2px);
+  }
+
+  .poem-grid-card.current {
+    border-color: var(--accent);
+    background: var(--bg-active);
+  }
+
+  .poem-grid-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .poem-grid-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-main);
+  }
+
+  .poem-grid-author {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .poem-grid-preview {
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dialog-title {
+    margin: 0 0 14px;
+    font-size: 1.25rem;
+  }
+
+  .form-field {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .form-field label {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .form-field input, .form-field textarea {
+    font: inherit;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-main);
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 680px) {
+    :root {
+      --poem-size: 1.4rem;
+      --rt-size: 0.65rem;
+    }
+    .window-wrapper {
+      padding: 16px 14px 24px;
+    }
+    .poem-title {
+      font-size: 1.75rem;
+    }
+    .sentence-details {
+      padding-left: 0;
+    }
+    .dock-top {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .transport-controls {
+      justify-content: space-between;
+    }
+    .catalog-body {
+      grid-template-columns: 135px 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<main class="window-wrapper" id="appWrapper">
+  <!-- 頂部工具列 -->
+  <header class="top-bar">
+    <div class="brand">
+      <div class="seal" title="古詩吟誦">吟誦</div>
+      <div>
+        <div class="brand-title">古詩詞逐句朗讀</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button type="button" class="tool-btn catalog-btn" id="openCatalogBtn" title="開啟《唐詩三百首》依作者分類目錄">🗂️ 唐詩三百首目錄 (依作者)</button>
+      <button type="button" class="tool-btn" id="addPoemBtn" title="新增自訂詩詞">➕ 自訂詩詞</button>
+      <button type="button" class="tool-btn active" id="toggleZhuyinBtn" title="切換注音顯示">ㄅ 注音</button>
+      <button type="button" class="tool-btn active" id="toggleNotesBtn" title="切換白話翻譯與註釋">📖 翻譯註釋</button>
+      <button type="button" class="tool-btn" id="fontSizeBtn" title="切換字體大小">A+ 字級</button>
+      <button type="button" class="tool-btn" id="themeBtn" title="切換深淺色主題">🌙 護眼</button>
+      <button type="button" class="tool-btn fullscreen-btn" id="fullscreenBtn">⛶ 全螢幕</button>
+    </div>
+  </header>
+
+  <!-- 依作者分類雙層選擇器 -->
+  <section class="selector-bar" aria-label="依作者分類選詩">
+    <div class="selector-group">
+      <label class="selector-label" for="authorSelect">👤 詩人／分類：</label>
+      <select id="authorSelect" class="select-box" aria-label="選擇詩人或分類"></select>
+    </div>
+    <div class="selector-group" style="flex:1; min-width: 220px;">
+      <label class="selector-label" for="poemSelect">📜 詩詞作品：</label>
+      <select id="poemSelect" class="select-box" style="max-width: 100%; flex: 1;" aria-label="選擇詩詞作品"></select>
+    </div>
+  </section>
+
+  <!-- 熱門詩人快速切換列 -->
+  <nav class="author-chips-bar" id="authorChipsBar" aria-label="熱門詩人快速切換"></nav>
+
+  <!-- 詩詞標題與簡介 -->
+  <section class="poem-header">
+    <div class="poem-title-row">
+      <h1 class="poem-title" id="poemTitle">短歌行</h1>
+      <button type="button" class="speak-title-btn" id="speakHeaderBtn" title="朗讀詩名與作者">🔊</button>
+    </div>
+    <div class="poem-meta">
+      <span id="poemAuthor">〔東漢末年〕曹操</span>
+      <span class="genre-badge" id="poemGenre">樂府詩</span>
+    </div>
+    <p class="poem-intro" id="poemIntro"></p>
+  </section>
+
+  <!-- 狀態與進度橫幅 -->
+  <div class="status-banner">
+    <div class="status-left">
+      <span class="status-badge" id="statusBadge">⏹ 待命：點擊任一詩句即可朗讀</span>
+      <span id="progressCounter">第 1 / 16 句</span>
+    </div>
+    <div class="progress-track" aria-hidden="true">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- 逐句詩詞容器 -->
+  <section class="sentences-list" id="sentencesList" aria-label="詩詞逐句列表"></section>
+</main>
+
+<!-- 底部固定朗讀控制列 -->
+<footer class="player-dock" aria-label="朗讀控制面板">
+  <div class="dock-top">
+    <div class="now-playing">
+      <span class="now-playing-label" id="dockIndexLabel">第 1 句</span>
+      <span class="now-playing-text" id="dockCurrentText">對酒當歌，人生幾何！</span>
+    </div>
+
+    <div class="transport-controls">
+      <button type="button" class="ctrl-btn" id="prevBtn" title="上一句 (↑ / ←)">⏮ 上一句</button>
+      <button type="button" class="ctrl-btn primary" id="playPauseBtn" title="播放或暫停 (空白鍵)">▶ 逐句朗讀</button>
+      <button type="button" class="ctrl-btn" id="nextBtn" title="下一句 (↓ / →)">⏭ 下一句</button>
+      <button type="button" class="ctrl-btn" id="repeatOneBtn" title="重讀目前這一句 (R)">🔄 重讀本句</button>
+      <button type="button" class="ctrl-btn" id="stopBtn" title="停止朗讀">⏹</button>
+    </div>
+  </div>
+
+  <div class="dock-bottom">
+    <div class="setting-group">
+      <label for="modeSelect">朗讀模式：
+        <select id="modeSelect" class="mini-select">
+          <option value="continuous">連續逐句朗讀</option>
+          <option value="shadow">🎤 跟讀練習 (每句留白跟讀)</option>
+          <option value="twice">📚 每句讀兩遍 (背誦推薦)</option>
+          <option value="loop-one">🔁 單句循環朗讀</option>
+          <option value="single">👆 點讀單句 (讀完即停)</option>
+        </select>
+      </label>
+
+      <label for="unitSelect">分句單位：
+        <select id="unitSelect" class="mini-select">
+          <option value="sentence">完整詩句 (如：對酒當歌，人生幾何！)</option>
+          <option value="clause">短句分讀 (如：對酒當歌 / 人生幾何)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="setting-group">
+      <label for="rateSelect">語速：
+        <select id="rateSelect" class="mini-select">
+          <option value="0.75">0.75x 慢速吟誦</option>
+          <option value="0.9" selected>0.90x 適中清晰</option>
+          <option value="1.0">1.00x 標準語速</option>
+          <option value="1.15">1.15x 輕快</option>
+        </select>
+      </label>
+
+      <label for="pauseSelect">句間停頓：
+        <select id="pauseSelect" class="mini-select">
+          <option value="400">0.4 秒</option>
+          <option value="800" selected>0.8 秒</option>
+          <option value="1500">1.5 秒</option>
+          <option value="2500">2.5 秒</option>
+        </select>
+      </label>
+
+      <label for="engineSelect">語音來源：
+        <select id="engineSelect" class="mini-select">
+          <option value="google" selected>Google 自然語音 (預設)</option>
+          <option value="webspeech">系統內建語音 (離線可用)</option>
+        </select>
+      </label>
+    </div>
+  </div>
+</footer>
+
+<!-- 唐詩三百首 依作者分類總覽對話框 -->
+<dialog id="catalogDialog">
+  <div class="catalog-container">
+    <div class="catalog-header">
+      <h2>📚 詩詞總覽與《唐詩三百首》依作者分類</h2>
+      <div class="catalog-search-wrap">
+        <input type="search" id="catalogSearch" class="catalog-search" placeholder="🔍 搜尋詩人、詩名或詩句（如：李白、明月、將進酒）">
+      </div>
+      <button type="button" class="tool-btn" id="closeCatalogBtn">✕ 關閉</button>
+    </div>
+    <div class="catalog-body">
+      <aside class="catalog-authors" id="catalogAuthorsList" aria-label="詩人列表"></aside>
+      <div class="catalog-poems" id="catalogPoemsGrid" aria-label="詩作列表"></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- 新增自訂詩詞對話框 -->
+<dialog id="customPoemDialog">
+  <h2 class="dialog-title">➕ 新增自訂讀詩內容</h2>
+  <form id="customPoemForm" method="dialog">
+    <div class="form-field">
+      <label for="customTitle">詩詞名稱</label>
+      <input type="text" id="customTitle" placeholder="例如：定風波" required>
+    </div>
+    <div class="form-field">
+      <label for="customAuthor">朝代與作者</label>
+      <input type="text" id="customAuthor" placeholder="例如：〔北宋〕蘇軾">
+    </div>
+    <div class="form-field">
+      <label for="customContent">詩詞內容（每行一句，系統會自動加註音並支援逐句朗讀）</label>
+      <textarea id="customContent" rows="6" placeholder="莫聽穿林打葉聲，何妨吟嘯且徐行。&#10;竹杖芒鞋輕勝馬，誰怕？一蓑煙雨任平生。" required></textarea>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="tool-btn" id="cancelDialogBtn">取消</button>
+      <button type="submit" class="ctrl-btn primary">儲存並開始朗讀</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- 載入《唐詩三百首》320首題庫與注音字典 -->
+<script src="tang300_data.js"></script>
+<script>
+  /**
+   * 精選名篇題庫（第一首固定為曹操〈短歌行〉，第二首為蘇軾〈水調歌頭〉）
+   */
+  const FEATURED_POEMS = [
+    {
+      id: 'duangexing',
+      title: '短歌行',
+      author: '〔東漢末年〕曹操',
+      poet: '曹操',
+      category: 'featured',
+      genre: '漢魏樂府',
+      ttsHeader: '短歌行，曹操。',
+      intro: '《短歌行》是曹操最著名的樂府詩代表作。全詩以「對酒當歌，人生幾何」起興，感嘆時光易逝，並化用《詩經》與「周公吐哺」典故，抒發求賢若渴、渴望招攬天下英才共創大業的豪情壯志。',
+      lines: [
+        {
+          text: '對酒當歌，人生幾何！',
+          tts: '對酒當歌，人生幾何！',
+          ruby: [['對','ㄉㄨㄟˋ'],['酒','ㄐㄧㄡˇ'],['當','ㄉㄤ'],['歌','ㄍㄜ'],['，',''],['人','ㄖㄣˊ'],['生','ㄕㄥ'],['幾','ㄐㄧˇ'],['何','ㄏㄜˊ'],['！','']],
+          trans: '面對著美酒應當高聲放歌，人生的歲月究竟能有多長呢！',
+          vocab: '當歌：對著美酒應當高歌。幾何：多少、能有多久。'
+        },
+        {
+          text: '譬如朝露，去日苦多。',
+          tts: '譬如朝露，去日苦多。',
+          ruby: [['譬','ㄆㄧˋ'],['如','ㄖㄨˊ'],['朝','ㄓㄠ'],['露','ㄌㄨˋ'],['，',''],['去','ㄑㄩˋ'],['日','ㄖˋ'],['苦','ㄎㄨˇ'],['多','ㄉㄨㄛ'],['。','']],
+          trans: '生命好比清晨的露水一樣容易消逝，已經過去的歲月實在太多了。',
+          vocab: '朝露：清晨的露水（朝，音ㄓㄠ），比喻生命短暫。去日苦多：苦於逝去的日子太多。'
+        },
+        {
+          text: '慨當以慷，憂思難忘。',
+          tts: '慨當以慷，憂思難忘。',
+          ruby: [['慨','ㄎㄞˇ'],['當','ㄉㄤ'],['以','ㄧˇ'],['慷','ㄎㄤ'],['，',''],['憂','ㄧㄡ'],['思','ㄙ'],['難','ㄋㄢˊ'],['忘','ㄨㄤˋ'],['。','']],
+          trans: '歌聲應當激昂慷慨，但內心深處的憂慮卻依然難以排遣忘懷。',
+          vocab: '慨當以慷：「慷慨」的間文，形容歌聲激昂悲壯。'
+        },
+        {
+          text: '何以解憂？唯有杜康。',
+          tts: '何以解憂？唯有杜康。',
+          ruby: [['何','ㄏㄜˊ'],['以','ㄧˇ'],['解','ㄐㄧㄝˇ'],['憂','ㄧㄡ'],['？',''],['唯','ㄨㄟˊ'],['有','ㄧㄡˇ'],['杜','ㄉㄨˋ'],['康','ㄎㄤ'],['。','']],
+          trans: '靠什麼才能消除心中的憂愁呢？只有靠這濃醇的美酒了。',
+          vocab: '何以：用什麼。杜康：相傳為古代發明釀酒的人，此處代指美酒。'
+        },
+        {
+          text: '青青子衿，悠悠我心。',
+          tts: '青青子衿，悠悠我心。',
+          ruby: [['青','ㄑㄧㄥ'],['青','ㄑㄧㄥ'],['子','ㄗˇ'],['衿','ㄐㄧㄣ'],['，',''],['悠','ㄧㄡ'],['悠','ㄧㄡ'],['我','ㄨㄛˇ'],['心','ㄒㄧㄣ'],['。','']],
+          trans: '穿著青色衣領的賢才學子啊，我對你們的思念是如此深長不斷。',
+          vocab: '子衿：周代讀書人青色的衣領（衿，音ㄐㄧㄣ），代指賢才；出自《詩經·鄭風·子衿》。'
+        },
+        {
+          text: '但為君故，沉吟至今。',
+          tts: '但為君故，沉吟至今。',
+          ruby: [['但','ㄉㄢˋ'],['為','ㄨㄟˋ'],['君','ㄐㄩㄣ'],['故','ㄍㄨˋ'],['，',''],['沉','ㄔㄣˊ'],['吟','ㄧㄣˊ'],['至','ㄓˋ'],['今','ㄐㄧㄣ'],['。','']],
+          trans: '只因為思念你們這些賢才的緣故，我一直低迴吟誦、思慕到今天。',
+          vocab: '但：只、僅。為君故：為了你們的緣故。沉吟：低聲吟詠、深思懷念。'
+        },
+        {
+          text: '呦呦鹿鳴，食野之苹。',
+          tts: '呦呦鹿鳴，食野之苹。',
+          ruby: [['呦','ㄧㄡ'],['呦','ㄧㄡ'],['鹿','ㄌㄨˋ'],['鳴','ㄇㄧㄥˊ'],['，',''],['食','ㄕˊ'],['野','ㄧㄝˇ'],['之','ㄓ'],['苹','ㄆㄧㄥˊ'],['。','']],
+          trans: '野鹿呦呦地呼喚著同伴，一起在原野上吃著艾蒿。',
+          vocab: '呦呦：音ㄧㄡ ㄧㄡ，鹿叫聲。苹：音ㄆㄧㄥˊ，艾蒿；出自《詩經·小雅·鹿鳴》。'
+        },
+        {
+          text: '我有嘉賓，鼓瑟吹笙。',
+          tts: '我有嘉賓，鼓瑟吹笙。',
+          ruby: [['我','ㄨㄛˇ'],['有','ㄧㄡˇ'],['嘉','ㄐㄧㄚ'],['賓','ㄅㄧㄣ'],['，',''],['鼓','ㄍㄨˇ'],['瑟','ㄙㄜˋ'],['吹','ㄔㄨㄟ'],['笙','ㄕㄥ'],['。','']],
+          trans: '只要我有尊貴的賢才賓客到來，定會彈瑟吹笙、盛情款待。',
+          vocab: '嘉賓：尊貴的賓客、賢才。鼓瑟吹笙：彈奏琴瑟、吹奏笙簧。'
+        },
+        {
+          text: '明明如月，何時可掇？',
+          tts: '明明如月，何時可掇？',
+          ruby: [['明','ㄇㄧㄥˊ'],['明','ㄇㄧㄥˊ'],['如','ㄖㄨˊ'],['月','ㄩㄝˋ'],['，',''],['何','ㄏㄜˊ'],['時','ㄕˊ'],['可','ㄎㄜˇ'],['掇','ㄉㄨㄛ'],['？','']],
+          trans: '天上那輪皎潔明亮的明月，什麼時候才能親手摘取下來呢？',
+          vocab: '掇：音ㄉㄨㄛ，拾取、摘取；比喻何時能招攬到如明月般高潔的賢才。'
+        },
+        {
+          text: '憂從中來，不可斷絕。',
+          tts: '憂從中來，不可斷絕。',
+          ruby: [['憂','ㄧㄡ'],['從','ㄘㄨㄥˊ'],['中','ㄓㄨㄥ'],['來','ㄌㄞˊ'],['，',''],['不','ㄅㄨˋ'],['可','ㄎㄜˇ'],['斷','ㄉㄨㄢˋ'],['絕','ㄐㄩㄝˊ'],['。','']],
+          trans: '思念賢才的憂愁從內心深處湧起，連綿不絕無法抑止。',
+          vocab: '中：內心之中。斷絕：停止、中斷。'
+        },
+        {
+          text: '越陌度阡，枉用相存。',
+          tts: '越陌度阡，枉用相存。',
+          ruby: [['越','ㄩㄝˋ'],['陌','ㄇㄛˋ'],['度','ㄉㄨˋ'],['阡','ㄑㄧㄢ'],['，',''],['枉','ㄨㄤˇ'],['用','ㄩㄥˋ'],['相','ㄒㄧㄤ'],['存','ㄘㄨㄣˊ'],['。','']],
+          trans: '賢才們穿過縱橫交錯的田間小路，屈駕遠道而來探望問候我。',
+          vocab: '陌阡：東西向曰陌，南北向曰阡。枉：屈駕。存：問候、探望。'
+        },
+        {
+          text: '契闊談讌，心念舊恩。',
+          tts: '契闊談宴，心念舊恩。',
+          ruby: [['契','ㄑㄧˋ'],['闊','ㄎㄨㄛˋ'],['談','ㄊㄢˊ'],['讌','ㄧㄢˋ'],['，',''],['心','ㄒㄧㄣ'],['念','ㄋㄧㄢˋ'],['舊','ㄐㄧㄡˋ'],['恩','ㄣ'],['。','']],
+          trans: '久別重逢後一起飲酒歡宴、暢談心曲，心裡感念著往日的情誼。',
+          vocab: '契闊：久別重逢。談讌：飲宴暢談（讌，音ㄧㄢˋ，通「宴」）。'
+        },
+        {
+          text: '月明星稀，烏鵲南飛。',
+          tts: '月明星稀，烏鵲南飛。',
+          ruby: [['月','ㄩㄝˋ'],['明','ㄇㄧㄥˊ'],['星','ㄒㄧㄥ'],['稀','ㄒㄧ'],['，',''],['烏','ㄨ'],['鵲','ㄑㄩㄝˋ'],['南','ㄋㄢˊ'],['飛','ㄈㄟ'],['。','']],
+          trans: '月光明亮、星光稀疏的夜晚，烏鵲正朝著南方飛去。',
+          vocab: '烏鵲：烏鴉與喜鵲，比喻在亂世中尋覓明主的賢才。'
+        },
+        {
+          text: '繞樹三匝，何枝可依？',
+          tts: '繞樹三匝，何枝可依？',
+          ruby: [['繞','ㄖㄠˋ'],['樹','ㄕㄨˋ'],['三','ㄙㄢ'],['匝','ㄗㄚ'],['，',''],['何','ㄏㄜˊ'],['枝','ㄓ'],['可','ㄎㄜˇ'],['依','ㄧ'],['？','']],
+          trans: '牠們繞著樹木飛了一圈又一圈，究竟哪一根樹枝才值得棲息依靠呢？',
+          vocab: '三匝：繞樹飛了好幾圈（匝，音ㄗㄚ，周、圈）。'
+        },
+        {
+          text: '山不厭高，海不厭深。',
+          tts: '山不厭高，海不厭深。',
+          ruby: [['山','ㄕㄢ'],['不','ㄅㄨˋ'],['厭','ㄧㄢˋ'],['高','ㄍㄠ'],['，',''],['海','ㄏㄞˇ'],['不','ㄅㄨˋ'],['厭','ㄧㄢˋ'],['深','ㄕㄣ'],['。','']],
+          trans: '高山不嫌棄土石才更見巍峨，大海不嫌棄涓流才更顯深廣。',
+          vocab: '厭：滿足、嫌棄。比喻招納賢才越多越好。'
+        },
+        {
+          text: '周公吐哺，天下歸心。',
+          tts: '周公吐哺，天下歸心。',
+          ruby: [['周','ㄓㄡ'],['公','ㄍㄨㄥ'],['吐','ㄊㄨˇ'],['哺','ㄅㄨˇ'],['，',''],['天','ㄊㄧㄢ'],['下','ㄒㄧㄚˋ'],['歸','ㄍㄨㄟ'],['心','ㄒㄧㄣ'],['。','']],
+          trans: '我願效法周公吐哺禮賢下士的精神，讓天下的賢才都真心歸順！',
+          vocab: '周公吐哺：周公吃飯時多次吐出口中食物（哺，音ㄅㄨˇ）以接見賢士，唯恐錯失人才。'
+        }
+      ]
+    },
+    {
+      id: 'shuidiaogetou',
+      title: '水調歌頭',
+      author: '〔北宋〕蘇軾',
+      poet: '蘇軾',
+      category: 'featured',
+      genre: '宋詞名篇',
+      ttsHeader: '水調歌頭，蘇軾。丙辰中秋，歡飲達旦，大醉，作此篇，兼懷子由。',
+      intro: '〈小序〉：「丙辰中秋，歡飲達旦，大醉，作此篇，兼懷子由。」宋神宗熙寧九年（1076年）中秋，蘇軾於密州任上，與胞弟蘇轍（字子由）已七年未見。詞人望月懷人，將人世悲歡與宇宙哲理融為一體，寫下「但願人長久，千里共嬋娟」的千古絕唱。',
+      lines: [
+        {
+          text: '明月幾時有？把酒問青天。',
+          tts: '明月幾時有？把酒問青天。',
+          ruby: [['明','ㄇㄧㄥˊ'],['月','ㄩㄝˋ'],['幾','ㄐㄧˇ'],['時','ㄕˊ'],['有','ㄧㄡˇ'],['？',''],['把','ㄅㄚˇ'],['酒','ㄐㄧㄡˇ'],['問','ㄨㄣˋ'],['青','ㄑㄧㄥ'],['天','ㄊㄧㄢ'],['。','']],
+          trans: '皎潔的明月是什麼時候開始出現的呢？我端起酒杯詢問蒼天。',
+          vocab: '幾時：何時。把酒：端起酒杯（把，持、拿）。青天：蒼天，化用李白〈把酒問月〉「青天有月來幾時？我今停杯一問之」。'
+        },
+        {
+          text: '不知天上宮闕，今夕是何年。',
+          tts: '不知天上宮闕，今夕是何年。',
+          ruby: [['不','ㄅㄨˋ'],['知','ㄓ'],['天','ㄊㄧㄢ'],['上','ㄕㄤˋ'],['宮','ㄍㄨㄥ'],['闕','ㄑㄩㄝˋ'],['，',''],['今','ㄐㄧㄣ'],['夕','ㄒㄧˋ'],['是','ㄕˋ'],['何','ㄏㄜˊ'],['年','ㄋㄧㄢˊ'],['。','']],
+          trans: '不知道在天上的月宮仙闕裡，今晚究竟是哪一年呢？',
+          vocab: '宮闕：宮殿（闕，音ㄑㄩㄝˋ），此指月宮。今夕：今晚。'
+        },
+        {
+          text: '我欲乘風歸去，又恐瓊樓玉宇，高處不勝寒。',
+          tts: '我欲乘風歸去，又恐瓊樓玉宇，高處不勝寒。',
+          ruby: [['我','ㄨㄛˇ'],['欲','ㄩˋ'],['乘','ㄔㄥˊ'],['風','ㄈㄥ'],['歸','ㄍㄨㄟ'],['去','ㄑㄩˋ'],['，',''],['又','ㄧㄡˋ'],['恐','ㄎㄨㄥˇ'],['瓊','ㄑㄩㄥˊ'],['樓','ㄌㄡˊ'],['玉','ㄩˋ'],['宇','ㄩˇ'],['，',''],['高','ㄍㄠ'],['處','ㄔㄨˋ'],['不','ㄅㄨˋ'],['勝','ㄕㄥ'],['寒','ㄏㄢˊ'],['。','']],
+          trans: '我想要乘著清風回到天上去，卻又擔心美玉砌成的月宮樓閣太高，受不住那裡的寒冷。',
+          vocab: '乘風：駕著風（乘，音ㄔㄥˊ）。瓊樓玉宇：美玉砌成的樓閣，指月宮。不勝寒：禁不起高處的寒意（勝，音ㄕㄥ，承受、禁得起）。'
+        },
+        {
+          text: '起舞弄清影，何似在人間。',
+          tts: '起舞弄清影，何似在人間。',
+          ruby: [['起','ㄑㄧˇ'],['舞','ㄨˇ'],['弄','ㄋㄨㄥˋ'],['清','ㄑㄧㄥ'],['影','ㄧㄥˇ'],['，',''],['何','ㄏㄜˊ'],['似','ㄙˋ'],['在','ㄗㄞˋ'],['人','ㄖㄣˊ'],['間','ㄐㄧㄢ'],['。','']],
+          trans: '不如在月光下翩翩起舞，與自己清朗的身影相伴嬉戲，天上哪裡比得上人間呢！',
+          vocab: '弄清影：與月光下自己清朗的影子相伴起舞。何似：哪裡比得上。'
+        },
+        {
+          text: '轉朱閣，低綺戶，照無眠。',
+          tts: '轉朱閣，低綺戶，照無眠。',
+          ruby: [['轉','ㄓㄨㄢˇ'],['朱','ㄓㄨ'],['閣','ㄍㄜˊ'],['，',''],['低','ㄉㄧ'],['綺','ㄑㄧˇ'],['戶','ㄏㄨˋ'],['，',''],['照','ㄓㄠˋ'],['無','ㄨˊ'],['眠','ㄇㄧㄢˊ'],['。','']],
+          trans: '月光轉過朱紅色的樓閣，低低地穿過雕花的門窗，照著思念親人而無法成眠的人。',
+          vocab: '朱閣：朱紅色的樓閣。綺戶：雕飾華美的門窗（綺，音ㄑㄧˇ）。無眠：指因思念而睡不著的人。'
+        },
+        {
+          text: '不應有恨，何事長向別時圓？',
+          tts: '不應有恨，何事長向別時圓？',
+          ruby: [['不','ㄅㄨˋ'],['應','ㄧㄥ'],['有','ㄧㄡˇ'],['恨','ㄏㄣˋ'],['，',''],['何','ㄏㄜˊ'],['事','ㄕˋ'],['長','ㄔㄤˊ'],['向','ㄒㄧㄤˋ'],['別','ㄅㄧㄝˊ'],['時','ㄕˊ'],['圓','ㄩㄢˊ'],['？','']],
+          trans: '明月對人應該沒有怨恨才對，但為什麼總是偏偏在人們離別的時候才圓滿呢？',
+          vocab: '不應：不該（應，音ㄧㄥ）。何事：為何、為什麼。長：常、總是。'
+        },
+        {
+          text: '人有悲歡離合，月有陰晴圓缺，此事古難全。',
+          tts: '人有悲歡離合，月有陰晴圓缺，此事古難全。',
+          ruby: [['人','ㄖㄣˊ'],['有','ㄧㄡˇ'],['悲','ㄅㄟ'],['歡','ㄏㄨㄢ'],['離','ㄌㄧˊ'],['合','ㄏㄜˊ'],['，',''],['月','ㄩㄝˋ'],['有','ㄧㄡˇ'],['陰','ㄧㄣ'],['晴','ㄑㄧㄥˊ'],['圓','ㄩㄢˊ'],['缺','ㄑㄩㄝ'],['，',''],['此','ㄘˇ'],['事','ㄕˋ'],['古','ㄍㄨˇ'],['難','ㄋㄢˊ'],['全','ㄑㄩㄢˊ'],['。','']],
+          trans: '人世間本來就有悲傷、歡樂、離別與團聚，就像月亮也會有陰暗、晴朗、團圓與殘缺，這樣的事自古以來就難以十全十美。',
+          vocab: '古難全：自古以來就難以完美周全。'
+        },
+        {
+          text: '但願人長久，千里共嬋娟。',
+          tts: '但願人長久，千里共嬋娟。',
+          ruby: [['但','ㄉㄢˋ'],['願','ㄩㄢˋ'],['人','ㄖㄣˊ'],['長','ㄔㄤˊ'],['久','ㄐㄧㄡˇ'],['，',''],['千','ㄑㄧㄢ'],['里','ㄌㄧˇ'],['共','ㄍㄨㄥˋ'],['嬋','ㄔㄢˊ'],['娟','ㄐㄩㄢ'],['。','']],
+          trans: '只希望彼此都能健康長久，即使相隔千里之遠，也能共同欣賞這輪美好的明月。',
+          vocab: '但願：只願。長久：健康平安、長久健在。嬋娟：音ㄔㄢˊ ㄐㄩㄢ，姿態美好貌，此處代指明月。'
+        }
+      ]
+    },
+    {
+      id: 'guancanghai',
+      title: '觀滄海',
+      author: '〔東漢末年〕曹操',
+      poet: '曹操',
+      category: 'featured',
+      genre: '漢魏樂府',
+      ttsHeader: '觀滄海，曹操。',
+      intro: '《觀滄海》是曹操北征烏桓得勝回師途中，登臨碣石山眺望大海所作。全詩氣勢磅礴，借大海吞吐日月星辰的壯麗景象，展現詩人包容天地的博大胸襟。',
+      lines: [
+        {
+          text: '東臨碣石，以觀滄海。',
+          tts: '東臨碣石，以觀滄海。',
+          ruby: [['東','ㄉㄨㄥ'],['臨','ㄌㄧㄣˊ'],['碣','ㄐㄧㄝˊ'],['石','ㄕˊ'],['，',''],['以','ㄧˇ'],['觀','ㄍㄨㄢ'],['滄','ㄘㄤ'],['海','ㄏㄞˇ'],['。','']],
+          trans: '向東登上碣石高山，俯瞰遼闊無邊的大海。',
+          vocab: '碣石：山名（碣，音ㄐㄧㄝˊ）。滄海：大海。'
+        },
+        {
+          text: '水何澹澹，山島竦峙。',
+          tts: '水何澹澹，山島竦峙。',
+          ruby: [['水','ㄕㄨㄟˇ'],['何','ㄏㄜˊ'],['澹','ㄉㄢˋ'],['澹','ㄉㄢˋ'],['，',''],['山','ㄕㄢ'],['島','ㄉㄠˇ'],['竦','ㄙㄨㄥˇ'],['峙','ㄓˋ'],['。','']],
+          trans: '海水多麼浩蕩動盪，海中山島高高地聳立在水面。',
+          vocab: '澹澹：音ㄉㄢˋ ㄉㄢˋ，水波浩蕩貌。竦峙：音ㄙㄨㄥˇ ㄓˋ，高聳挺立。'
+        },
+        {
+          text: '樹木叢生，百草豐茂。',
+          tts: '樹木叢生，百草豐茂。',
+          ruby: [['樹','ㄕㄨˋ'],['木','ㄇㄨˋ'],['叢','ㄘㄨㄥˊ'],['生','ㄕㄥ'],['，',''],['百','ㄅㄞˇ'],['草','ㄘㄠˇ'],['豐','ㄈㄥ'],['茂','ㄇㄠˋ'],['。','']],
+          trans: '島上樹木一叢叢生長，各種花草豐美繁茂。',
+          vocab: '叢生：聚集生長。豐茂：茂盛。'
+        },
+        {
+          text: '秋風蕭瑟，洪波湧起。',
+          tts: '秋風蕭瑟，洪波湧起。',
+          ruby: [['秋','ㄑㄧㄡ'],['風','ㄈㄥ'],['蕭','ㄒㄧㄠ'],['瑟','ㄙㄜˋ'],['，',''],['洪','ㄏㄨㄥˊ'],['波','ㄅㄛ'],['湧','ㄩㄥˇ'],['起','ㄑㄧˇ'],['。','']],
+          trans: '秋風吹動樹林發出蕭瑟聲響，巨大的波濤洶湧翻騰。',
+          vocab: '蕭瑟：風吹樹木的聲音。洪波：巨大的波浪。'
+        },
+        {
+          text: '日月之行，若出其中；',
+          tts: '日月之行，若出其中；',
+          ruby: [['日','ㄖˋ'],['月','ㄩㄝˋ'],['之','ㄓ'],['行','ㄒㄧㄥˊ'],['，',''],['若','ㄖㄨㄛˋ'],['出','ㄔㄨ'],['其','ㄑㄧˊ'],['中','ㄓㄨㄥ'],['；','']],
+          trans: '太陽和月亮每天升起落下，好像都是從大海的懷抱中運行出來；',
+          vocab: '行：運行。若：好像。'
+        },
+        {
+          text: '星漢燦爛，若出其裡。',
+          tts: '星漢燦爛，若出其裡。',
+          ruby: [['星','ㄒㄧㄥ'],['漢','ㄏㄢˋ'],['燦','ㄘㄢˋ'],['爛','ㄌㄢˋ'],['，',''],['若','ㄖㄨㄛˋ'],['出','ㄔㄨ'],['其','ㄑㄧˊ'],['裡','ㄌㄧˇ'],['。','']],
+          trans: '銀河閃耀著燦爛的光芒，也好像是從大海深處孕育而生。',
+          vocab: '星漢：銀河。'
+        },
+        {
+          text: '幸甚至哉，歌以詠志。',
+          tts: '幸甚至哉，歌以詠志。',
+          ruby: [['幸','ㄒㄧㄥˋ'],['甚','ㄕㄣˋ'],['至','ㄓˋ'],['哉','ㄗㄞ'],['，',''],['歌','ㄍㄜ'],['以','ㄧˇ'],['詠','ㄩㄥˇ'],['志','ㄓˋ'],['。','']],
+          trans: '慶幸到了極點，謹以此歌吟詠心中的志向。',
+          vocab: '樂府詩結尾合樂時的套語。'
+        }
+      ]
+    },
+    {
+      id: 'guisuishou',
+      title: '龜雖壽',
+      author: '〔東漢末年〕曹操',
+      poet: '曹操',
+      category: 'featured',
+      genre: '漢魏樂府',
+      ttsHeader: '龜雖壽，曹操。',
+      intro: '《龜雖壽》展現了曹操積極進取的人生態度。其中「老驥伏櫪，志在千里；烈士暮年，壯心不已」成為千古名句，激勵人們即使年華老去仍要保持雄心壯志。',
+      lines: [
+        {
+          text: '神龜雖壽，猶有竟時；',
+          tts: '神龜雖壽，猶有竟時；',
+          ruby: [['神','ㄕㄣˊ'],['龜','ㄍㄨㄟ'],['雖','ㄙㄨㄟ'],['壽','ㄕㄡˋ'],['，',''],['猶','ㄧㄡˊ'],['有','ㄧㄡˇ'],['竟','ㄐㄧㄥˋ'],['時','ㄕˊ'],['；','']],
+          trans: '神龜雖然極為長壽，但生命仍有終結的一天；',
+          vocab: '猶：尚且、仍然。竟：終結、終了。'
+        },
+        {
+          text: '騰蛇乘霧，終為土灰。',
+          tts: '騰蛇乘霧，終為土灰。',
+          ruby: [['騰','ㄊㄥˊ'],['蛇','ㄕㄜˊ'],['乘','ㄔㄥˊ'],['霧','ㄨˋ'],['，',''],['終','ㄓㄨㄥ'],['為','ㄨㄟˊ'],['土','ㄊㄨˇ'],['灰','ㄏㄨㄟ'],['。','']],
+          trans: '騰蛇雖然能駕霧飛翔，最終也會化為塵土灰燼。',
+          vocab: '騰蛇：傳說中能興雲駕霧的神蛇。'
+        },
+        {
+          text: '老驥伏櫪，志在千里；',
+          tts: '老驥伏櫪，志在千里；',
+          ruby: [['老','ㄌㄠˇ'],['驥','ㄐㄧˋ'],['伏','ㄈㄨˊ'],['櫪','ㄌㄧˋ'],['，',''],['志','ㄓˋ'],['在','ㄗㄞˋ'],['千','ㄑㄧㄢ'],['里','ㄌㄧˇ'],['；','']],
+          trans: '年老的千里馬雖然伏在馬槽旁，雄心壯志依然想馳騁千里；',
+          vocab: '驥：音ㄐㄧˋ，千里馬。櫪：音ㄌㄧˋ，馬槽。'
+        },
+        {
+          text: '烈士暮年，壯心不已。',
+          tts: '烈士暮年，壯心不已。',
+          ruby: [['烈','ㄌㄧㄝˋ'],['士','ㄕˋ'],['暮','ㄇㄨˋ'],['年','ㄋㄧㄢˊ'],['，',''],['壯','ㄓㄨㄤˋ'],['心','ㄒㄧㄣ'],['不','ㄅㄨˋ'],['已','ㄧˇ'],['。','']],
+          trans: '有遠大抱負的人到了晚年，豪情壯志依然不會停止。',
+          vocab: '烈士：懷有壯志的人。不已：不停止。'
+        },
+        {
+          text: '盈縮之期，不但在天；',
+          tts: '盈縮之期，不但在天；',
+          ruby: [['盈','ㄧㄥˊ'],['縮','ㄙㄨㄛ'],['之','ㄓ'],['期','ㄑㄧˊ'],['，',''],['不','ㄅㄨˋ'],['但','ㄉㄢˋ'],['在','ㄗㄞˋ'],['天','ㄊㄧㄢ'],['；','']],
+          trans: '人壽命的長短期限，並不僅僅由上天決定；',
+          vocab: '盈縮：長短。不但：不僅僅。'
+        },
+        {
+          text: '養怡之福，可得永年。',
+          tts: '養怡之福，可得永年。',
+          ruby: [['養','ㄧㄤˇ'],['怡','ㄧˊ'],['之','ㄓ'],['福','ㄈㄨˊ'],['，',''],['可','ㄎㄜˇ'],['得','ㄉㄜˊ'],['永','ㄩㄥˇ'],['年','ㄋㄧㄢˊ'],['。','']],
+          trans: '只要調養身心、保持愉快，也能獲得長壽。',
+          vocab: '養怡：調養身心使其愉悅。永年：長壽。'
+        },
+        {
+          text: '幸甚至哉，歌以詠志。',
+          tts: '幸甚至哉，歌以詠志。',
+          ruby: [['幸','ㄒㄧㄥˋ'],['甚','ㄕㄣˋ'],['至','ㄓˋ'],['哉','ㄗㄞ'],['，',''],['歌','ㄍㄜ'],['以','ㄧˇ'],['詠','ㄩㄥˇ'],['志','ㄓˋ'],['。','']],
+          trans: '慶幸到了極點，謹以此歌吟詠心中的志向。',
+          vocab: '樂府詩結尾套語。'
+        }
+      ]
+    }
+  ];
+
+  // 取得注音對照表並提供自動注音標註函式
+  const CHAR_ZHUYIN = (window.TANG300_DATA && window.TANG300_DATA.charZhuyin) || {};
+  const PHRASE_ZHUYIN = (window.TANG300_DATA && window.TANG300_DATA.phraseZhuyin) || {};
+  const PHRASE_KEYS = Object.keys(PHRASE_ZHUYIN).sort((a, b) => b.length - a.length);
+
+  function annotateTextToRuby(text) {
+    const chars = Array.from(text);
+    const zys = new Array(chars.length).fill('');
+
+    // 先套用多字詞破音字覆寫 (如：將進酒、單于、不勝、少年、早朝、霓裳等)
+    for (const phrase of PHRASE_KEYS) {
+      let startIdx = text.indexOf(phrase);
+      while (startIdx !== -1) {
+        const pZys = PHRASE_ZHUYIN[phrase].split(' ');
+        for (let k = 0; k < phrase.length; k++) {
+          if (pZys[k]) zys[startIdx + k] = pZys[k];
+        }
+        startIdx = text.indexOf(phrase, startIdx + 1);
+      }
+    }
+
+    // 再補齊單字注音
+    const punctRegex = /[，。！？；：、「」『』（）《》〈〉—…\s]/;
+    return chars.map((ch, i) => {
+      if (punctRegex.test(ch)) return [ch, ''];
+      return [ch, zys[i] || CHAR_ZHUYIN[ch] || ''];
+    });
+  }
+
+  // 合併《精選名篇》與《唐詩三百首》(320首)
+  const TANG_RAW = (window.TANG300_DATA && window.TANG300_DATA.poems) || [];
+  const TANG_POEMS = TANG_RAW.map(p => ({
+    id: p.id,
+    title: p.title,
+    author: p.author,
+    poet: p.poet,
+    category: 'tang300',
+    genre: `唐詩三百首・${p.genre}`,
+    ttsHeader: `${p.title.replace(/（.*）/, '')}，唐，${p.poet}。`,
+    intro: `收錄於《唐詩三百首》【${p.genre}】，作者為唐代詩人${p.poet}。點擊任一詩句即可逐句朗讀。`,
+    lines: p.lines.map(l => ({
+      text: l.text,
+      tts: l.text,
+      ruby: annotateTextToRuby(l.text),
+      trans: l.trans || '',
+      vocab: l.vocab || ''
+    }))
+  }));
+
+  const POEMS = [...FEATURED_POEMS, ...TANG_POEMS];
+
+  // 統計《唐詩三百首》各詩人作品數量並排序
+  function getSortedTangAuthors() {
+    const counts = new Map();
+    TANG_POEMS.forEach(p => {
+      counts.set(p.poet, (counts.get(p.poet) || 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .map(([poet, count]) => ({ poet, count }))
+      .sort((a, b) => b.count - a.count || a.poet.localeCompare(b.poet, 'zh-Hant'));
+  }
+
+  // 狀態管理
+  const state = {
+    selectedCategory: 'featured', // 'featured' | 'all_tang' | poetName | 'custom'
+    currentPoemIdx: 0,
+    activeIndex: 0,
+    isPlaying: false,
+    unitMode: 'sentence', // 'sentence' | 'clause'
+    playMode: 'continuous', // 'continuous' | 'shadow' | 'twice' | 'loop-one' | 'single'
+    rate: 0.9,
+    pauseMs: 800,
+    engine: 'google',
+    showZhuyin: true,
+    showNotes: true,
+    fontScaleIndex: 1,
+    repeatCounter: 0,
+    timerId: null,
+    currentAudio: null,
+    playToken: 0,
+    catalogAuthor: 'all_tang',
+    catalogSearch: ''
+  };
+
+  const fontScales = [
+    { poem: '1.45rem', rt: '0.66rem' },
+    { poem: '1.75rem', rt: '0.72rem' },
+    { poem: '2.10rem', rt: '0.82rem' },
+    { poem: '2.45rem', rt: '0.92rem' }
+  ];
+
+  const $ = id => document.getElementById(id);
+
+  // 根據目前選擇的「詩人／分類」篩選對應詩作索引
+  function getFilteredPoemIndices(categoryKey = state.selectedCategory) {
+    const indices = [];
+    POEMS.forEach((p, idx) => {
+      if (categoryKey === 'featured' && p.category === 'featured') {
+        indices.push(idx);
+      } else if (categoryKey === 'all_tang' && p.category === 'tang300') {
+        indices.push(idx);
+      } else if (categoryKey === 'custom' && p.category === 'custom') {
+        indices.push(idx);
+      } else if (p.poet === categoryKey) {
+        indices.push(idx);
+      }
+    });
+    return indices;
+  }
+
+  // 渲染「詩人／分類」下拉選單與熱門詩人快速標籤列
+  function renderAuthorSelectors() {
+    const tangAuthors = getSortedTangAuthors();
+    const hasCustom = POEMS.some(p => p.category === 'custom');
+
+    const authorSel = $('authorSelect');
+    let html = `
+      <option value="featured">⭐ 精選名篇（曹操〈短歌行〉・蘇軾〈水調歌頭〉）</option>
+      <option value="all_tang">📚 唐詩三百首 — 全部詩人 (${tangAuthors.length}位・${TANG_POEMS.length}首)</option>
+    `;
+    if (hasCustom) {
+      html += `<option value="custom">✨ 自訂詩詞</option>`;
+    }
+    html += `<optgroup label="── 唐詩三百首・依作者分類（共 ${tangAuthors.length} 位詩人）──">`;
+    tangAuthors.forEach(a => {
+      html += `<option value="${escapeHTML(a.poet)}">${escapeHTML(a.poet)}（${a.count} 首）</option>`;
+    });
+    html += `</optgroup>`;
+    authorSel.innerHTML = html;
+    authorSel.value = state.selectedCategory;
+
+    // 渲染熱門詩人快速切換 Chip 列
+    const topPoets = tangAuthors.slice(0, 10);
+    const chipsBar = $('authorChipsBar');
+    let chipsHTML = `<span class="chip-label">快速分類：</span>`;
+    chipsHTML += `<button type="button" class="author-chip ${state.selectedCategory === 'featured' ? 'active' : ''}" data-cat="featured">⭐ 曹操・蘇軾精選<span class="count">(${FEATURED_POEMS.length})</span></button>`;
+    topPoets.forEach(a => {
+      const isAct = state.selectedCategory === a.poet;
+      chipsHTML += `<button type="button" class="author-chip ${isAct ? 'active' : ''}" data-cat="${escapeHTML(a.poet)}">${escapeHTML(a.poet)}<span class="count">(${a.count})</span></button>`;
+    });
+    chipsHTML += `<button type="button" class="author-chip" id="moreAuthorsChip">更多詩人 (${tangAuthors.length}) ▾</button>`;
+    chipsBar.innerHTML = chipsHTML;
+  }
+
+  // 渲染第二層「詩詞作品」下拉選單
+  function renderPoemSelect() {
+    const indices = getFilteredPoemIndices(state.selectedCategory);
+    const sel = $('poemSelect');
+    sel.innerHTML = indices.map((poemIdx, order) => {
+      const p = POEMS[poemIdx];
+      const shortGenre = p.genre ? p.genre.replace('唐詩三百首・', '') : '';
+      const authorSuffix = (state.selectedCategory === 'featured' || state.selectedCategory === 'all_tang')
+        ? ` — ${p.poet}`
+        : '';
+      return `<option value="${poemIdx}" ${poemIdx === state.currentPoemIdx ? 'selected' : ''}>${order + 1}. ${escapeHTML(p.title)}${authorSuffix}${shortGenre ? ` 〔${escapeHTML(shortGenre)}〕` : ''}</option>`;
+    }).join('');
+  }
+
+  // 取得目前詩詞在目前分句單位下的「朗讀項目陣列」
+  function getActiveUnits() {
+    const poem = POEMS[state.currentPoemIdx];
+    if (state.unitMode === 'sentence') {
+      return poem.lines.map((line, idx) => ({
+        index: idx,
+        text: line.text,
+        tts: line.tts || line.text,
+        ruby: line.ruby || null,
+        trans: line.trans || '',
+        vocab: line.vocab || ''
+      }));
+    } else {
+      const units = [];
+      poem.lines.forEach((line) => {
+        if (line.ruby && line.ruby.length > 0) {
+          let chunkChars = [];
+          let chunkText = '';
+          line.ruby.forEach(([ch, zy]) => {
+            chunkChars.push([ch, zy]);
+            chunkText += ch;
+            if ('，；？！。'.includes(ch)) {
+              units.push({
+                index: units.length,
+                text: chunkText.trim(),
+                tts: chunkText.replace(/讌/g, '宴').trim(),
+                ruby: chunkChars,
+                trans: line.trans || '',
+                vocab: line.vocab || ''
+              });
+              chunkChars = [];
+              chunkText = '';
+            }
+          });
+          if (chunkText.trim()) {
+            units.push({
+              index: units.length,
+              text: chunkText.trim(),
+              tts: chunkText.replace(/讌/g, '宴').trim(),
+              ruby: chunkChars,
+              trans: line.trans || '',
+              vocab: line.vocab || ''
+            });
+          }
+        } else {
+          const parts = line.text.split(/(?<=[，；？！。])/);
+          parts.forEach(p => {
+            if (p.trim()) {
+              units.push({
+                index: units.length,
+                text: p.trim(),
+                tts: p.trim(),
+                ruby: null,
+                trans: line.trans || '',
+                vocab: line.vocab || ''
+              });
+            }
+          });
+        }
+      });
+      return units;
+    }
+  }
+
+  function renderRubyHTML(unit) {
+    if (!unit.ruby || unit.ruby.length === 0) {
+      return `<span>${escapeHTML(unit.text)}</span>`;
+    }
+    return unit.ruby.map(([ch, zy]) => {
+      if (!zy) return `<span class="punct">${escapeHTML(ch)}</span>`;
+      return `<ruby>${escapeHTML(ch)}<rt>${escapeHTML(zy)}</rt></ruby>`;
+    }).join('');
+  }
+
+  function escapeHTML(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // 渲染整首詩的卡片列表
+  function renderPoem() {
+    const poem = POEMS[state.currentPoemIdx];
+    $('poemTitle').textContent = poem.title;
+    $('poemAuthor').textContent = poem.author;
+    $('poemGenre').textContent = poem.genre || '古典詩詞';
+    $('poemIntro').textContent = poem.intro || '點擊下方任一詩句即可開始逐句朗讀。';
+    $('poemIntro').style.display = poem.intro ? 'block' : 'none';
+
+    const units = getActiveUnits();
+    if (state.activeIndex >= units.length) {
+      state.activeIndex = 0;
+    }
+
+    const listEl = $('sentencesList');
+    listEl.classList.toggle('hide-zhuyin', !state.showZhuyin);
+    listEl.classList.toggle('hide-notes', !state.showNotes);
+
+    listEl.innerHTML = units.map((u, idx) => {
+      const hasDetails = u.trans || u.vocab;
+      return `
+        <article class="sentence-card ${idx === state.activeIndex ? 'active' : ''}" data-index="${idx}" role="button" tabindex="0" aria-label="第 ${idx + 1} 句：${escapeHTML(u.text)}">
+          <div class="sentence-main">
+            <div class="sentence-left">
+              <span class="sentence-index">${idx + 1}</span>
+              <div class="sentence-text">${renderRubyHTML(u)}</div>
+            </div>
+            <div class="sentence-actions">
+              <div class="wave-indicator" aria-hidden="true">
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+              </div>
+              <button type="button" class="line-play-btn" data-play-index="${idx}" title="朗讀這一句">🔊</button>
+            </div>
+          </div>
+          ${hasDetails ? `
+            <div class="sentence-details">
+              ${u.trans ? `<div class="trans-line"><span class="trans-tag">白話句意</span>${escapeHTML(u.trans)}</div>` : ''}
+              ${u.vocab ? `<div class="vocab-line"><span class="vocab-tag">字詞註釋</span>${escapeHTML(u.vocab)}</div>` : ''}
+            </div>
+          ` : ''}
+        </article>
+      `;
+    }).join('');
+
+    updateUIState();
+  }
+
+  function updateUIState(statusText = null, badgeMode = '') {
+    const units = getActiveUnits();
+    const total = units.length;
+    const current = units[state.activeIndex] || units[0];
+
+    document.querySelectorAll('.sentence-card').forEach((card, idx) => {
+      const isCurrent = idx === state.activeIndex;
+      card.classList.toggle('active', isCurrent);
+      card.classList.toggle('playing', isCurrent && state.isPlaying);
+    });
+
+    $('progressCounter').textContent = `第 ${state.activeIndex + 1} / ${total} 句`;
+    const pct = total > 0 ? ((state.activeIndex + 1) / total) * 100 : 0;
+    $('progressFill').style.width = `${pct}%`;
+
+    $('dockIndexLabel').textContent = `第 ${state.activeIndex + 1} 句`;
+    $('dockCurrentText').textContent = current ? current.text : '';
+
+    const playBtn = $('playPauseBtn');
+    if (state.isPlaying) {
+      playBtn.innerHTML = '⏸ 暫停朗讀';
+    } else {
+      playBtn.innerHTML = '▶ 逐句朗讀';
+    }
+
+    const badge = $('statusBadge');
+    badge.className = 'status-badge';
+    if (statusText) {
+      badge.textContent = statusText;
+      if (badgeMode) badge.classList.add(badgeMode);
+    } else if (state.isPlaying) {
+      badge.textContent = `🔊 正在朗讀第 ${state.activeIndex + 1} 句...`;
+      badge.classList.add('playing');
+    } else {
+      badge.textContent = '⏹ 待命：點擊任一詩句或按「逐句朗讀」';
+    }
+  }
+
+  function scrollActiveIntoView() {
+    const card = document.querySelector(`.sentence-card[data-index="${state.activeIndex}"]`);
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function stopAudioOnly() {
+    state.playToken++;
+    if (state.timerId) {
+      clearTimeout(state.timerId);
+      state.timerId = null;
+    }
+    if (state.currentAudio) {
+      state.currentAudio.onended = null;
+      state.currentAudio.onerror = null;
+      state.currentAudio.pause();
+      state.currentAudio = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  function stopPlayback() {
+    stopAudioOnly();
+    state.isPlaying = false;
+    state.repeatCounter = 0;
+    updateUIState('⏹ 已停止朗讀');
+  }
+
+  function speakText(text, onComplete) {
+    const token = ++state.playToken;
+
+    const finishIfCurrent = () => {
+      if (token !== state.playToken) return;
+      if (onComplete) onComplete();
+    };
+
+    const speakWithWebSpeech = () => {
+      if (token !== state.playToken) return;
+      if (!('speechSynthesis' in window)) {
+        finishIfCurrent();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-TW';
+      u.rate = state.rate;
+
+      const voices = window.speechSynthesis.getVoices().filter(v => v.lang.includes('zh'));
+      const twVoice = voices.find(v =>
+        v.lang === 'zh-TW' && (v.name.includes('Hanhan') || v.name.includes('Yating') || v.name.includes('Mei-Jia') || v.name.includes('曉') || v.name.includes('Google'))
+      ) || voices.find(v => v.lang === 'zh-TW') || voices[0];
+
+      if (twVoice) u.voice = twVoice;
+      u.onend = finishIfCurrent;
+      u.onerror = finishIfCurrent;
+      window.speechSynthesis.speak(u);
+    };
+
+    if (state.engine === 'webspeech') {
+      speakWithWebSpeech();
+      return;
+    }
+
+    const url = `https://translate.googleapis.com/translate_tts?client=tw-ob&ie=UTF-8&tl=zh-TW&q=${encodeURIComponent(text)}`;
+    const audio = new Audio();
+    audio.referrerPolicy = 'no-referrer';
+    audio.src = url;
+    audio.playbackRate = state.rate;
+    state.currentAudio = audio;
+
+    audio.onended = finishIfCurrent;
+    audio.onerror = () => {
+      speakWithWebSpeech();
+    };
+
+    audio.play().catch(() => {
+      speakWithWebSpeech();
+    });
+  }
+
+  function playCurrentUnit(forceSingle = false) {
+    stopAudioOnly();
+    const units = getActiveUnits();
+    if (!units.length) return;
+
+    if (state.activeIndex < 0) state.activeIndex = 0;
+    if (state.activeIndex >= units.length) state.activeIndex = units.length - 1;
+
+    state.isPlaying = true;
+    const unit = units[state.activeIndex];
+    const tokenAtStart = state.playToken + 1;
+
+    scrollActiveIntoView();
+    const isSecondRead = state.playMode === 'twice' && state.repeatCounter === 1;
+    updateUIState(
+      isSecondRead
+        ? `🔊 第 ${state.activeIndex + 1} 句（第 2 遍加深記憶）：${unit.text}`
+        : `🔊 正在朗讀第 ${state.activeIndex + 1} 句：${unit.text}`,
+      'playing'
+    );
+
+    speakText(unit.tts, () => {
+      if (state.playToken !== tokenAtStart || !state.isPlaying) return;
+
+      if (forceSingle || state.playMode === 'single') {
+        state.isPlaying = false;
+        state.repeatCounter = 0;
+        updateUIState(`✔ 已讀完第 ${state.activeIndex + 1} 句`);
+        return;
+      }
+
+      if (state.playMode === 'loop-one') {
+        state.timerId = setTimeout(() => {
+          if (state.isPlaying) playCurrentUnit();
+        }, state.pauseMs);
+        return;
+      }
+
+      if (state.playMode === 'twice' && state.repeatCounter === 0) {
+        state.repeatCounter = 1;
+        state.timerId = setTimeout(() => {
+          if (state.isPlaying) playCurrentUnit();
+        }, Math.max(500, state.pauseMs));
+        return;
+      }
+      state.repeatCounter = 0;
+
+      if (state.playMode === 'shadow') {
+        const shadowTime = Math.max(2200, unit.text.length * 320);
+        updateUIState(`🎤 請跟讀：「${unit.text}」`, 'shadowing');
+        state.timerId = setTimeout(() => {
+          if (!state.isPlaying) return;
+          advanceToNextOrFinish();
+        }, shadowTime);
+        return;
+      }
+
+      state.timerId = setTimeout(() => {
+        if (!state.isPlaying) return;
+        advanceToNextOrFinish();
+      }, state.pauseMs);
+    });
+  }
+
+  function advanceToNextOrFinish() {
+    const units = getActiveUnits();
+    if (state.activeIndex < units.length - 1) {
+      state.activeIndex++;
+      playCurrentUnit();
+    } else {
+      state.isPlaying = false;
+      updateUIState('🎉 全詩朗讀完畢！點擊「逐句朗讀」可從頭再讀一遍');
+    }
+  }
+
+  function togglePlayPause() {
+    if (state.isPlaying) {
+      stopAudioOnly();
+      state.isPlaying = false;
+      updateUIState(`⏸ 已暫停於第 ${state.activeIndex + 1} 句`);
+    } else {
+      const units = getActiveUnits();
+      if (state.activeIndex >= units.length - 1 && $('statusBadge').textContent.includes('完畢')) {
+        state.activeIndex = 0;
+      }
+      playCurrentUnit(false);
+    }
+  }
+
+  // 切換分類／作者
+  function selectCategory(catKey, targetPoemIdx = null) {
+    stopPlayback();
+    state.selectedCategory = catKey;
+    const indices = getFilteredPoemIndices(catKey);
+    if (targetPoemIdx !== null && indices.includes(targetPoemIdx)) {
+      state.currentPoemIdx = targetPoemIdx;
+    } else if (indices.length > 0) {
+      state.currentPoemIdx = indices[0];
+    }
+    state.activeIndex = 0;
+    renderAuthorSelectors();
+    renderPoemSelect();
+    renderPoem();
+  }
+
+  // 渲染《唐詩三百首》依作者分類總覽目錄彈窗
+  function renderCatalogModal() {
+    const tangAuthors = getSortedTangAuthors();
+    const authorsEl = $('catalogAuthorsList');
+    const q = state.catalogSearch.trim();
+
+    let navHTML = `
+      <button type="button" class="author-nav-item ${state.catalogAuthor === 'featured' ? 'active' : ''}" data-cat-author="featured">
+        <span>⭐ 精選名篇 (曹操/蘇軾)</span>
+        <span class="author-nav-count">${FEATURED_POEMS.length}</span>
+      </button>
+      <button type="button" class="author-nav-item ${state.catalogAuthor === 'all_tang' ? 'active' : ''}" data-cat-author="all_tang">
+        <span>📚 唐詩三百首 (全部)</span>
+        <span class="author-nav-count">${TANG_POEMS.length}</span>
+      </button>
+    `;
+
+    tangAuthors.forEach(a => {
+      if (q && !a.poet.includes(q)) {
+        // 若有搜尋字詞，仍顯示有匹配詩作的詩人
+        const hasMatch = TANG_POEMS.some(p =>
+          p.poet === a.poet && (p.title.includes(q) || p.poet.includes(q) || p.lines.some(l => l.text.includes(q)))
+        );
+        if (!hasMatch) return;
+      }
+      const isAct = state.catalogAuthor === a.poet;
+      navHTML += `
+        <button type="button" class="author-nav-item ${isAct ? 'active' : ''}" data-cat-author="${escapeHTML(a.poet)}">
+          <span>${escapeHTML(a.poet)}</span>
+          <span class="author-nav-count">${a.count} 首</span>
+        </button>
+      `;
+    });
+    authorsEl.innerHTML = navHTML;
+
+    // 右側詩作卡片清單
+    let candidateIndices = [];
+    if (q) {
+      // 有關鍵字時跨全庫或當前分類搜尋
+      POEMS.forEach((p, idx) => {
+        const matchAuthor = state.catalogAuthor === 'all_tang'
+          ? true
+          : (state.catalogAuthor === 'featured' ? p.category === 'featured' : p.poet === state.catalogAuthor);
+        if (!matchAuthor) return;
+        if (
+          p.title.includes(q) ||
+          p.poet.includes(q) ||
+          (p.genre && p.genre.includes(q)) ||
+          p.lines.some(l => l.text.includes(q))
+        ) {
+          candidateIndices.push(idx);
+        }
+      });
+    } else {
+      candidateIndices = getFilteredPoemIndices(state.catalogAuthor);
+    }
+
+    const gridEl = $('catalogPoemsGrid');
+    if (candidateIndices.length === 0) {
+      gridEl.innerHTML = `<div style="grid-column: 1/-1; padding: 28px; text-align:center; color: var(--text-muted);">找不到符合「${escapeHTML(q)}」的詩詞，請嘗試切換左側「📚 唐詩三百首 (全部)」或更換關鍵字。</div>`;
+      return;
+    }
+
+    gridEl.innerHTML = candidateIndices.map(poemIdx => {
+      const p = POEMS[poemIdx];
+      const firstLine = p.lines[0] ? p.lines[0].text : '';
+      const shortGenre = p.genre ? p.genre.replace('唐詩三百首・', '') : '';
+      return `
+        <button type="button" class="poem-grid-card ${poemIdx === state.currentPoemIdx ? 'current' : ''}" data-pick-poem="${poemIdx}">
+          <div class="poem-grid-top">
+            <span class="poem-grid-title">${escapeHTML(p.title)}</span>
+            <span class="poem-grid-author">${escapeHTML(p.poet)} · ${escapeHTML(shortGenre)}</span>
+          </div>
+          <div class="poem-grid-preview">${escapeHTML(firstLine)}</div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  // 事件綁定
+  $('authorSelect').addEventListener('change', e => {
+    selectCategory(e.target.value);
+  });
+
+  $('poemSelect').addEventListener('change', e => {
+    stopPlayback();
+    state.currentPoemIdx = Number(e.target.value);
+    state.activeIndex = 0;
+    renderPoem();
+  });
+
+  $('authorChipsBar').addEventListener('click', e => {
+    const moreBtn = e.target.closest('#moreAuthorsChip');
+    if (moreBtn) {
+      state.catalogAuthor = state.selectedCategory === 'featured' ? 'all_tang' : state.selectedCategory;
+      renderCatalogModal();
+      $('catalogDialog').showModal();
+      return;
+    }
+    const chip = e.target.closest('.author-chip[data-cat]');
+    if (chip) {
+      selectCategory(chip.dataset.cat);
+    }
+  });
+
+  // 目錄對話框事件
+  const catalogDialog = $('catalogDialog');
+  $('openCatalogBtn').addEventListener('click', () => {
+    state.catalogAuthor = state.selectedCategory;
+    renderCatalogModal();
+    catalogDialog.showModal();
+  });
+
+  $('closeCatalogBtn').addEventListener('click', () => {
+    catalogDialog.close();
+  });
+
+  $('catalogSearch').addEventListener('input', e => {
+    state.catalogSearch = e.target.value;
+    if (state.catalogSearch.trim() && state.catalogAuthor === 'featured') {
+      state.catalogAuthor = 'all_tang';
+    }
+    renderCatalogModal();
+  });
+
+  $('catalogAuthorsList').addEventListener('click', e => {
+    const btn = e.target.closest('.author-nav-item');
+    if (!btn) return;
+    state.catalogAuthor = btn.dataset.catAuthor;
+    renderCatalogModal();
+  });
+
+  $('catalogPoemsGrid').addEventListener('click', e => {
+    const card = e.target.closest('.poem-grid-card');
+    if (!card) return;
+    const poemIdx = Number(card.dataset.pickPoem);
+    const picked = POEMS[poemIdx];
+    const targetCat = picked.category === 'featured' ? 'featured' : (picked.poet || 'all_tang');
+    selectCategory(targetCat, poemIdx);
+    catalogDialog.close();
+  });
+
+  $('sentencesList').addEventListener('click', e => {
+    const card = e.target.closest('.sentence-card');
+    if (!card) return;
+    const idx = Number(card.dataset.index);
+    state.activeIndex = idx;
+    state.repeatCounter = 0;
+    playCurrentUnit(state.playMode === 'single');
+  });
+
+  $('sentencesList').addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const card = e.target.closest('.sentence-card');
+      if (card) {
+        e.preventDefault();
+        state.activeIndex = Number(card.dataset.index);
+        state.repeatCounter = 0;
+        playCurrentUnit(state.playMode === 'single');
+      }
+    }
+  });
+
+  $('speakHeaderBtn').addEventListener('click', () => {
+    stopPlayback();
+    const poem = POEMS[state.currentPoemIdx];
+    const headerText = poem.ttsHeader || `${poem.title}，${poem.author}`;
+    updateUIState(`🔊 朗讀詩題：${poem.title}`, 'playing');
+    speakText(headerText, () => {
+      updateUIState(`✔ 已朗讀詩題：${poem.title}`);
+    });
+  });
+
+  $('playPauseBtn').addEventListener('click', togglePlayPause);
+
+  $('prevBtn').addEventListener('click', () => {
+    const units = getActiveUnits();
+    state.activeIndex = (state.activeIndex - 1 + units.length) % units.length;
+    state.repeatCounter = 0;
+    playCurrentUnit(state.playMode === 'single');
+  });
+
+  $('nextBtn').addEventListener('click', () => {
+    const units = getActiveUnits();
+    state.activeIndex = (state.activeIndex + 1) % units.length;
+    state.repeatCounter = 0;
+    playCurrentUnit(state.playMode === 'single');
+  });
+
+  $('repeatOneBtn').addEventListener('click', () => {
+    state.repeatCounter = 0;
+    playCurrentUnit(true);
+  });
+
+  $('stopBtn').addEventListener('click', stopPlayback);
+
+  $('modeSelect').addEventListener('change', e => {
+    state.playMode = e.target.value;
+    state.repeatCounter = 0;
+  });
+
+  $('unitSelect').addEventListener('change', e => {
+    stopPlayback();
+    state.unitMode = e.target.value;
+    state.activeIndex = 0;
+    renderPoem();
+  });
+
+  $('rateSelect').addEventListener('change', e => {
+    state.rate = Number(e.target.value);
+    if (state.currentAudio) {
+      state.currentAudio.playbackRate = state.rate;
+    }
+  });
+
+  $('pauseSelect').addEventListener('change', e => {
+    state.pauseMs = Number(e.target.value);
+  });
+
+  $('engineSelect').addEventListener('change', e => {
+    state.engine = e.target.value;
+  });
+
+  $('toggleZhuyinBtn').addEventListener('click', e => {
+    state.showZhuyin = !state.showZhuyin;
+    e.currentTarget.classList.toggle('active', state.showZhuyin);
+    $('sentencesList').classList.toggle('hide-zhuyin', !state.showZhuyin);
+  });
+
+  $('toggleNotesBtn').addEventListener('click', e => {
+    state.showNotes = !state.showNotes;
+    e.currentTarget.classList.toggle('active', state.showNotes);
+    $('sentencesList').classList.toggle('hide-notes', !state.showNotes);
+  });
+
+  $('fontSizeBtn').addEventListener('click', () => {
+    state.fontScaleIndex = (state.fontScaleIndex + 1) % fontScales.length;
+    const scale = fontScales[state.fontScaleIndex];
+    document.documentElement.style.setProperty('--poem-size', scale.poem);
+    document.documentElement.style.setProperty('--rt-size', scale.rt);
+  });
+
+  $('themeBtn').addEventListener('click', e => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      e.currentTarget.textContent = '🌙 護眼';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      e.currentTarget.textContent = '☀️ 宣紙';
+    }
+  });
+
+  $('fullscreenBtn').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    const wrapper = $('appWrapper');
+    const btn = $('fullscreenBtn');
+    if (document.fullscreenElement) {
+      wrapper.classList.add('fullscreen');
+      btn.textContent = '⛶ 縮小';
+    } else {
+      wrapper.classList.remove('fullscreen');
+      btn.textContent = '⛶ 全螢幕';
+    }
+  });
+
+  // 自訂詩詞對話框
+  const customDialog = $('customPoemDialog');
+  $('addPoemBtn').addEventListener('click', () => {
+    customDialog.showModal();
+  });
+
+  $('cancelDialogBtn').addEventListener('click', () => {
+    customDialog.close();
+  });
+
+  $('customPoemForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const title = $('customTitle').value.trim();
+    const author = $('customAuthor').value.trim() || '自訂詩詞';
+    const rawContent = $('customContent').value.trim();
+    if (!title || !rawContent) return;
+
+    const rawLines = rawContent
+      .split(/\r?\n|(?<=[。！？；])/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const newPoem = {
+      id: 'custom_' + Date.now(),
+      title,
+      author,
+      poet: author.replace(/〔.*〕/, '') || '自訂詩人',
+      category: 'custom',
+      genre: '自訂詩詞',
+      ttsHeader: `${title}，${author}。`,
+      intro: '使用者自訂詩詞，已自動標註注音並支援逐句朗讀。',
+      lines: rawLines.map(line => ({
+        text: line,
+        tts: line,
+        ruby: annotateTextToRuby(line),
+        trans: '',
+        vocab: ''
+      }))
+    };
+
+    POEMS.push(newPoem);
+    selectCategory('custom', POEMS.length - 1);
+    $('customPoemForm').reset();
+    customDialog.close();
+  });
+
+  // 鍵盤快捷鍵支援
+  document.addEventListener('keydown', e => {
+    if (customDialog.open || catalogDialog.open || ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+      return;
+    }
+    if (e.key === ' ') {
+      e.preventDefault();
+      togglePlayPause();
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      $('nextBtn').click();
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      $('prevBtn').click();
+    } else if (e.key.toLowerCase() === 'r') {
+      e.preventDefault();
+      $('repeatOneBtn').click();
+    }
+  });
+
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+  }
+
+  // 初始化畫面（預設載入第一首：曹操〈短歌行〉）
+  renderAuthorSelectors();
+  renderPoemSelect();
+  renderPoem();
+</script>
+</body>
+</html>
