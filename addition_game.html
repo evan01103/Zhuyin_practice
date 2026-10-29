@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>個位數加法練習</title>
+<style>
+  :root {
+    --bg1: #ffecd2;
+    --bg2: #fcb69f;
+    --card: #ffffff;
+    --primary: #ff7a59;
+    --ok: #2ecc71;
+    --bad: #e74c3c;
+    --text: #333;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+  }
+  .card {
+    background: var(--card);
+    width: min(440px, 100%);
+    border-radius: 28px;
+    box-shadow: 0 12px 40px rgb(0 0 0 / .15);
+    padding: 24px;
+    text-align: center;
+  }
+  h1 { margin: 0 0 12px; font-size: 1.6rem; }
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+  }
+  .stats b { font-size: 1.4rem; color: var(--primary); }
+  .progress {
+    height: 10px;
+    background: #f1f1f1;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .progress > div {
+    height: 100%;
+    width: 0;
+    background: var(--primary);
+    transition: width .3s;
+  }
+  .question {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: 8px 0;
+    letter-spacing: 4px;
+  }
+  .answer {
+    display: inline-block;
+    min-width: 2.2ch;
+    border-bottom: 5px solid var(--primary);
+    color: var(--primary);
+  }
+  .dots {
+    min-height: 34px;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .feedback {
+    min-height: 2rem;
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .shake { animation: shake .4s; }
+  .pop { animation: pop .4s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60% { transform: translateX(-10px); }
+    40%,80% { transform: translateX(10px); }
+  }
+  @keyframes pop {
+    50% { transform: scale(1.2); }
+  }
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .keypad button, .big-btn {
+    font: inherit;
+    font-size: 1.8rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 16px;
+    padding: 14px 0;
+    background: #fff3ee;
+    color: var(--text);
+    box-shadow: 0 4px 0 #f2c7b8;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .keypad button:active, .big-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #f2c7b8;
+  }
+  .keypad .del { background: #fdecea; }
+  .keypad .enter { background: var(--primary); color: #fff; box-shadow: 0 4px 0 #d85c3d; }
+  .big-btn {
+    width: 100%;
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 4px 0 #d85c3d;
+    margin-top: 16px;
+  }
+  .options {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .options label {
+    background: #fff3ee;
+    padding: 8px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  .hidden { display: none; }
+  .result-score { font-size: 3.5rem; font-weight: bold; color: var(--primary); }
+  .wrong-list { text-align: left; margin: 12px auto; max-width: 260px; font-size: 1.2rem; }
+</style>
+</head>
+<body>
+<main class="card">
+
+  <!-- 開始畫面 -->
+  <section id="startScreen">
+    <h1>🧮 個位數加法練習</h1>
+    <p>選擇題數，然後開始吧！</p>
+    <div class="options" id="countOptions">
+      <label><input type="radio" name="count" value="10" checked> 10 題</label>
+      <label><input type="radio" name="count" value="20"> 20 題</label>
+      <label><input type="radio" name="count" value="30"> 30 題</label>
+    </div>
+    <div class="options">
+      <label><input type="checkbox" id="showDots" checked> 顯示圖示提示</label>
+      <label><input type="checkbox" id="speak"> 朗讀題目</label>
+    </div>
+    <button class="big-btn" id="startBtn">開始 ▶</button>
+  </section>
+
+  <!-- 遊戲畫面 -->
+  <section id="gameScreen" class="hidden">
+    <div class="stats">
+      <div>第 <b id="qNum">1</b> / <span id="qTotal">10</span> 題</div>
+      <div>得分 <b id="score">0</b></div>
+      <div>連對 <b id="streak">0</b></div>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="question" id="question">
+      <span id="a">0</span> + <span id="b">0</span> = <span class="answer" id="answer">&nbsp;</span>
+    </div>
+    <div class="dots" id="dots"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="keypad" id="keypad">
+      <button>7</button><button>8</button><button>9</button>
+      <button>4</button><button>5</button><button>6</button>
+      <button>1</button><button>2</button><button>3</button>
+      <button class="del" data-key="del">⌫</button>
+      <button>0</button>
+      <button class="enter" data-key="enter">✔</button>
+    </div>
+  </section>
+
+  <!-- 結果畫面 -->
+  <section id="resultScreen" class="hidden">
+    <h1 id="resultTitle">完成！</h1>
+    <div>答對</div>
+    <div class="result-score" id="resultScore">0 / 10</div>
+    <div id="resultTime"></div>
+    <div id="wrongWrap" class="hidden">
+      <p>需要再練習的題目：</p>
+      <div class="wrong-list" id="wrongList"></div>
+    </div>
+    <button class="big-btn" id="againBtn">再玩一次 🔄</button>
+  </section>
+
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const screens = ['startScreen', 'gameScreen', 'resultScreen'];
+  const show = name => screens.forEach(s => $(s).classList.toggle('hidden', s !== name));
+
+  const state = {
+    total: 10, index: 0, score: 0, streak: 0,
+    a: 0, b: 0, input: '', tries: 0, locked: false,
+    wrong: [], startTime: 0,
+  };
+
+  const praises = ['答對了！🎉', '好棒！⭐', '太厲害了！👍', '完全正確！🌟', '你真聰明！💯'];
+  const emojis = ['🍎', '⭐', '🐟', '🌸', '🍓', '🎈'];
+
+  function speak(text) {
+    if (!$('speak').checked || !('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-TW';
+    u.rate = 0.9;
+    speechSynthesis.speak(u);
+  }
+
+  function rand() { return Math.floor(Math.random() * 10); } // 0 ~ 9
+
+  function newQuestion() {
+    let a, b;
+    do { a = rand(); b = rand(); }
+    while (a === state.a && b === state.b); // 避免與上一題完全相同
+    Object.assign(state, { a, b, input: '', tries: 0, locked: false });
+
+    $('a').textContent = a;
+    $('b').textContent = b;
+    $('answer').innerHTML = '&nbsp;';
+    $('feedback').textContent = '';
+    $('feedback').className = 'feedback';
+    $('qNum').textContent = state.index + 1;
+    $('bar').style.width = (state.index / state.total * 100) + '%';
+
+    if ($('showDots').checked) {
+      const e = emojis[Math.floor(Math.random() * emojis.length)];
+      $('dots').textContent = (e.repeat(a) || '∅') + '  +  ' + (e.repeat(b) || '∅');
+    } else {
+      $('dots').textContent = '';
+    }
+    speak(`${a} 加 ${b} 等於多少？`);
+  }
+
+  function updateAnswer() {
+    $('answer').innerHTML = state.input || '&nbsp;';
+  }
+
+  function press(key) {
+    if (state.locked) return;
+    if (key === 'del') {
+      state.input = state.input.slice(0, -1);
+    } else if (key === 'enter') {
+      check();
+      return;
+    } else if (state.input.length < 2) {
+      state.input += key;
+    }
+    updateAnswer();
+  }
+
+  function animate(el, cls) {
+    el.classList.remove(cls);
+    void el.offsetWidth; // 重新觸發動畫
+    el.classList.add(cls);
+  }
+
+  function check() {
+    if (state.input === '') return;
+    const correct = state.a + state.b;
+    const fb = $('feedback');
+
+    if (Number(state.input) === correct) {
+      state.locked = true;
+      if (state.tries === 0) { state.score++; state.streak++; }
+      else state.streak = 0;
+      $('score').textContent = state.score;
+      $('streak').textContent = state.streak;
+      fb.textContent = praises[Math.floor(Math.random() * praises.length)];
+      fb.className = 'feedback ok';
+      animate($('question'), 'pop');
+      speak('答對了');
+      setTimeout(next, 900);
+    } else {
+      state.tries++;
+      state.streak = 0;
+      $('streak').textContent = 0;
+      animate($('question'), 'shake');
+      if (state.tries >= 2) {
+        // 第二次答錯：顯示正確答案
+        state.locked = true;
+        state.wrong.push(`${state.a} + ${state.b} = ${correct}`);
+        fb.textContent = `正確答案是 ${correct}`;
+        fb.className = 'feedback bad';
+        $('answer').textContent = correct;
+        speak(`正確答案是 ${correct}`);
+        setTimeout(next, 1800);
+      } else {
+        fb.textContent = '再想想看 🤔';
+        fb.className = 'feedback bad';
+        state.input = '';
+        setTimeout(updateAnswer, 400);
+      }
+    }
+  }
+
+  function next() {
+    state.index++;
+    if (state.index >= state.total) finish();
+    else newQuestion();
+  }
+
+  function finish() {
+    $('bar').style.width = '100%';
+    const sec = Math.round((Date.now() - state.startTime) / 1000);
+    const ratio = state.score / state.total;
+    $('resultTitle').textContent =
+      ratio === 1 ? '🏆 全部答對！' : ratio >= 0.8 ? '🎉 很棒！' : ratio >= 0.5 ? '👍 不錯喔！' : '💪 繼續加油！';
+    $('resultScore').textContent = `${state.score} / ${state.total}`;
+    $('resultTime').textContent = `用時 ${Math.floor(sec / 60)} 分 ${sec % 60} 秒`;
+    $('wrongWrap').classList.toggle('hidden', state.wrong.length === 0);
+    $('wrongList').innerHTML = [...new Set(state.wrong)].map(w => `<div>❌ ${w}</div>`).join('');
+    show('resultScreen');
+    speak($('resultTitle').textContent.replace(/[^\u4e00-\u9fff！]/g, ''));
+  }
+
+  function start() {
+    state.total = Number(document.querySelector('input[name="count"]:checked').value);
+    Object.assign(state, { index: 0, score: 0, streak: 0, wrong: [], startTime: Date.now() });
+    $('qTotal').textContent = state.total;
+    $('score').textContent = 0;
+    $('streak').textContent = 0;
+    show('gameScreen');
+    newQuestion();
+  }
+
+  // 事件綁定
+  $('startBtn').addEventListener('click', start);
+  $('againBtn').addEventListener('click', () => show('startScreen'));
+  $('keypad').addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (btn) press(btn.dataset.key || btn.textContent);
+  });
+  document.addEventListener('keydown', e => {
+    if ($('gameScreen').classList.contains('hidden')) {
+      if (e.key === 'Enter' && !$('startScreen').classList.contains('hidden')) start();
+      return;
+    }
+    if (/^[0-9]$/.test(e.key)) press(e.key);
+    else if (e.key === 'Backspace') press('del');
+    else if (e.key === 'Enter') press('enter');
+  });
+</script>
+</body>
+</html>
